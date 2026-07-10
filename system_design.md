@@ -42,81 +42,12 @@
 ---
 
 ## 2. แผนภาพแสดงสิทธิ์การใช้งาน (Use Case Diagram)
-แผนภาพแสดงความต้องการของผู้ใช้ระบบ เพื่อระบุว่าสิทธิ์ประเภทใดสามารถเรียกใช้งานฟีเจอร์ใดได้บ้างในแอปพลิเคชัน fitpung โดยแบ่งระดับความละเอียดครอบคลุมกลุ่มลูกค้ารายย่อย แอดมินจัดการ และผู้ดูแลด้าน QA การยิงทดสอบระบบ
+
 
 ![Use Case Diagram](./usecase.png)
-*(ถ้ารูปไม่ขึ้น ให้นำไฟล์รูปมาใส่ในโฟลเดอร์นี้แล้วตั้งชื่อว่า usecase.png)*
-
---- UC_Reg
-  Customer --- UC_Login_Cust
-  Customer --- UC_Search
-  Customer --- UC_AddToCart
-  Customer --- UC_Pay
-  Customer --- UC_ViewStatus
-  Customer --- UC_Cancel
-
-  UC_Search -.->|in| UC_Cat
-  UC_Search -.->|in| UC_Price
-  
-  UC_AddToCart -.->|in| UC_AdjQty
-  UC_AdjQty -.->|in| UC_Calc
-  
-  UC_Pay -.->|in| UC_PayMethod
 
 
-  %% Staff & Admin Shared
-  UC_ManageStatus((จัดการสถานะสินค้า<br/>ของลูกค้า))
-  
-  subgraph Status_Group [" "]
-    direction TB
-    UC_WaitPay((รอชำระ))
-    UC_Packed((แพ็คของสำเร็จ))
-    UC_Shipping((กำลังส่ง))
-    UC_Delivered((ส่งสำเร็จ))
-  end
-  UC_ManageStatus -.->|in| UC_WaitPay
-  UC_ManageStatus -.->|in| UC_Packed
-  UC_ManageStatus -.->|in| UC_Shipping
-  UC_ManageStatus -.->|in| UC_Delivered
 
-  %% Staff Use Cases
-  UC_Login_Staff((เข้าสู่ระบบ))
-
-  Staff --- UC_Login_Staff
-  Staff --- UC_ManageStatus
-
-
-  %% Admin Use Cases
-  UC_Login_Admin((เข้าสู่ระบบ))
-  UC_Summary((ดูผลสรุปการขาย))
-  
-  UC_ManageProd((จัดการสินค้าหลังบ้าน))
-  subgraph Prod_Group [" "]
-    direction TB
-    UC_AddDelProd((เพิ่ม/ลบสินค้า))
-    UC_EditProdQty((แก้ไขจำนวนสินค้า))
-  end
-  UC_ManageProd -.->|in| UC_AddDelProd
-  UC_ManageProd -.->|in| UC_EditProdQty
-  
-  UC_ManageStaff((จัดการพนักงาน))
-  subgraph Staff_Group [" "]
-    direction TB
-    UC_AddStaff((เพิ่มพนักงานใหม่))
-    UC_DelStaff((ลบรายชื่อพนักงาน))
-  end
-  UC_ManageStaff -.->|in| UC_AddStaff
-  UC_ManageStaff -.->|in| UC_DelStaff
-
-  %% Admin Links
-  Admin --- UC_Login_Admin
-  Admin --- UC_Summary
-  Admin --- UC_ManageProd
-  Admin --- UC_ManageStaff
-  Admin --- UC_ManageStatus
-```
-
----
 
 ## 3. แผนภาพแสดงโครงสร้างข้อมูล (Class Diagram)
 แสดงโครงสร้างจำลองเชิงคลาส (Class Structure) ของระบบแอปพลิเคชันทั้งหมด ระบุดาต้าไทป์ ตัวแปร เมธอด และความสัมพันธ์ของคลาสหลังบ้านร่วมกับ API คอนโทรลเลอร์ ตลอดจนคลาสจัดเตรียมสถานะ (React Context) ของหน้าบ้าน
