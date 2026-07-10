@@ -1,0 +1,287 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --bg-main: #0C130E;
+  --bg-card: #152219;
+  --bg-card-hover: #1E3124;
+  --border-color: #23392A;
+  --text-primary: #ECF3EF;
+  --text-secondary: #91B39D;
+  --primary-glow: #10B981;
+  --secondary-glow: #F59E0B;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --font-title: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --shadow-neon: 0 0 15px rgba(16, 185, 129, 0.35);
+  --shadow-purple: 0 0 15px rgba(245, 158, 11, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-glow);
+  box-shadow: 0 0 10px var(--primary-glow);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Neon Gradient Buttons */
+.btn-neon {
+  background: linear-gradient(135deg, var(--primary-glow) 0%, var(--secondary-glow) 100%);
+  color: #000;
+  font-weight: 700;
+  font-family: var(--font-title);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 15px rgba(0, 245, 255, 0.3);
+}
+
+.btn-neon:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 245, 255, 0.5), 0 0 10px rgba(189, 0, 255, 0.5);
+  filter: brightness(1.1);
+}
+
+.btn-neon:active {
+  transform: translateY(0);
+}
+
+.btn-outline-neon {
+  background: transparent;
+  color: var(--primary-glow);
+  border: 1px solid var(--primary-glow);
+  font-weight: 600;
+  font-family: var(--font-title);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 0 0px rgba(0, 245, 255, 0);
+}
+
+.btn-outline-neon:hover {
+  background: rgba(0, 245, 255, 0.08);
+  box-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
+  text-shadow: 0 0 5px var(--primary-glow);
+}
+
+/* Glass Card */
+.glass-card {
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(0, 245, 255, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Glow Borders */
+.glow-cyan {
+  border-color: var(--primary-glow) !important;
+  box-shadow: var(--shadow-neon);
+}
+
+.glow-purple {
+  border-color: var(--secondary-glow) !important;
+  box-shadow: var(--shadow-purple);
+}
+
+/* Page Transition Wrapper */
+.page-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Badge Styles */
+.badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badge-pending {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--warning);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-paid {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-shipped {
+  background: rgba(0, 245, 255, 0.15);
+  color: var(--primary-glow);
+  border: 1px solid rgba(0, 245, 255, 0.3);
+}
+
+.badge-completed {
+  background: rgba(189, 0, 255, 0.15);
+  color: var(--secondary-glow);
+  border: 1px solid rgba(189, 0, 255, 0.3);
+}
+
+.badge-cancelled {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Order Actions */
+.order-actions-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  padding-top: 1.2rem;
+  margin-top: 0.8rem;
+  width: 100%;
+}
+
+.btn-cancel-order {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  font-weight: 600;
+  font-family: var(--font-title);
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel-order:hover {
+  background: rgba(239, 68, 68, 0.08);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+  text-shadow: 0 0 5px var(--danger);
+}
+
+.btn-pay-now {
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+/* Utility Layouts */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Responsive Grid */
+.grid-cols-1-2-3-4 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .grid-cols-1-2-3-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-cols-1-2-3-4 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .grid-cols-1-2-3-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Product Detail Grid Layout */
+.product-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+
+@media (min-width: 768px) {
+  .product-detail-grid {
+    grid-template-columns: 1fr 1.2fr;
+  }
+}
+
+/* Cart Responsive Grid Layout */
+.cart-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .cart-grid {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+/* Fix Login Tabs Wrapping */
+.login-tabs button {
+  white-space: nowrap !important;
+}
+

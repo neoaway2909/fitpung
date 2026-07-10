@@ -1,0 +1,368 @@
+# เอกสารการออกแบบระบบ (System Design Document)
+## ระบบร้านค้าเพื่อสุขภาพระดับพรีเมียม - fitpung
+
+
+
+---
+
+## วัตถุประสงค์ของระบบ (System Objectives)
+- เพื่อพัฒนาเว็บไซต์ร้านขายอุปกรณ์เพื่อสุขภาพในรูปแบบพาณิชย์อิเล็กทรอนิกส์ (E-Commerce) ที่สามารถใช้งานได้อย่างมีประสิทธิภาพ
+- เพื่ออำนวยความสะดวกให้ผู้ใช้งานสามารถค้นหาข้อมูล เลือกซื้อ และสั่งซื้ออุปกรณ์เพื่อสุขภาพผ่านระบบออนไลน์ได้อย่างรวดเร็ว
+- เพื่อพัฒนาระบบจัดการข้อมูลสินค้า คำสั่งซื้อ และข้อมูลลูกค้าให้เป็นระบบและง่ายต่อการบริหารจัดการ
+
+---
+## ขอบเขตการให้บริการ (Service Scope)
+
+**ลูกค้า (Customer)**
+- สมัครสมาชิกและเข้าสู่ระบบใช้งาน
+- เรียกดูและค้นหาสินค้าภายในเว็บไซต์
+- ทำการสั่งซื้ออุปกรณ์ด้านสุขภาพผ่านช่องทางออนไลน์
+- ตรวจสอบสถานะการจัดส่งสินค้า
+
+**พนักงาน (Staff)**
+- ดูแลปรับปรุงสถานะของสินค้าลูกค้า
+- ดำเนินการเกี่ยวกับคำสั่งซื้อและตรวจสอบการชำระเงินของลูกค้า
+
+**ผู้ดูแลระบบ (Administrator)**
+- บริหารจัดการข้อมูลของสมาชิกในระบบ
+- เรียกดูรายงานสรุปยอดขาย
+- เพิ่มและลบสินค้าใหม่
+
+---
+
+## 1. บทบาทและความสำคัญของแผนภาพต่อการพัฒนาระบบ
+ในการสร้างซอฟต์แวร์ การใช้แผนภาพต่างมุมมองช่วยให้ผู้พัฒนาระบบทำงานได้อย่างเป็นระบบและลดความผิดพลาด ดังนี้:
+
+*   **Use Case Diagram:** เป็นตัวบอก **"ระบบนี้ทำอะไรได้บ้างและใครเป็นคนทำ"** ทำหน้าที่ระบุขอบเขตของระบบ (System Scope) และบทบาทผู้ใช้งาน (Actors) ช่วยไม่ให้ทีมงานหลงทิศทางหรือพัฒนาฟีเจอร์นอกขอบเขต
+*   **Class Diagram:** เป็นตัวบอก **"โครงสร้างข้อมูลในระบบเชื่อมโยงกันอย่างไร"** ทำหน้าที่กำหนดชนิดตัวแปร ความสัมพันธ์ และเมธอดของออบเจกต์ข้อมูล ทำให้ฝั่งฐานข้อมูลและนักพัฒนาทุกส่วนเข้าใจฟิลด์และคีย์ตรงกัน
+*   **Sequence Diagram:** เป็นตัวบอก **"ระบบคุยกันในแนวตั้งอย่างไรตามเวลา"** ทำหน้าที่แสดงการไหลของข้อความ (Message Flow) ระหว่างคอมโพเนนต์หน้าบ้าน หลังบ้าน และฐานข้อมูลเมื่อเกิดเหตุการณ์ใดเหตุการณ์หนึ่ง ทำให้การดีบักและการเขียน Logic สมเหตุสมผล
+*   **Wireframe:** เป็นตัวบอก **"เค้าโครงหน้าตาเว็บจะถูกจัดวางอย่างไร"** เป็นโครงสร้างลายเส้นเพื่อกำหนดจุดวางปุ่ม แบนเนอร์ ช่องพิมพ์ข้อมูล เพื่อประเมินความลื่นไหลของหน้าจอก่อนจะลงสีหรือทำกราฟิกจริง
+*   **Prototype (ต้นแบบ):** เป็นตัวบอก **"การทดสอบการใช้งานจริงมีปฏิสัมพันธ์อย่างไร"** เป็นตัวช่วยทดสอบความรู้สึกของผู้ใช้งาน (User Experience) และระบบฟังก์ชันต่างๆ ว่าสามารถคลิกโต้ตอบ ชำระเงิน หรือสลับสิทธิ์ผู้ใช้ได้สมบูรณ์ก่อนปล่อยใช้งานจริง
+
+---
+
+## 2. แผนภาพแสดงสิทธิ์การใช้งาน (Use Case Diagram)
+แผนภาพแสดงความต้องการของผู้ใช้ระบบ เพื่อระบุว่าสิทธิ์ประเภทใดสามารถเรียกใช้งานฟีเจอร์ใดได้บ้างในแอปพลิเคชัน VitaLife โดยแบ่งระดับความละเอียดครอบคลุมกลุ่มลูกค้ารายย่อย แอดมินจัดการ และผู้ดูแลด้าน QA การยิงทดสอบระบบ
+
+```mermaid
+graph LR
+  %% Actors
+  Customer["👤 ผู้ใช้"]
+  Staff["📦 พนักงาน"]
+  Admin["👑 ผู้ดูแลระบบ"]
+
+  %% Customer Use Cases
+  UC_Reg((สมัครสมาชิก))
+  UC_Login_Cust((เข้าสู่ระบบ))
+  UC_Search((ค้นหาสินค้า))
+  UC_Cat((ประเภทสินค้า))
+  UC_Price((ราคาสินค้า))
+  
+  UC_AddToCart((เพิ่มสินค้าลงตะกร้า))
+  UC_AdjQty((เพิ่ม/ลดจำนวนสินค้า))
+  UC_Calc((คำนวณราคา))
+  
+  UC_Pay((ชำระเงิน))
+  UC_PayMethod((เลือกช่องทางการชำระเงิน))
+  
+  UC_ViewStatus((ดูสถานะสินค้า))
+  UC_Cancel((ยกเลิกคำสั่งซื้อ))
+
+  %% Customer Links
+  Customer --- UC_Reg
+  Customer --- UC_Login_Cust
+  Customer --- UC_Search
+  Customer --- UC_AddToCart
+  Customer --- UC_Pay
+  Customer --- UC_ViewStatus
+  Customer --- UC_Cancel
+
+  UC_Search -.->|in| UC_Cat
+  UC_Search -.->|in| UC_Price
+  
+  UC_AddToCart -.->|in| UC_AdjQty
+  UC_AdjQty -.->|in| UC_Calc
+  
+  UC_Pay -.->|in| UC_PayMethod
+
+
+  %% Staff & Admin Shared
+  UC_ManageStatus((จัดการสถานะสินค้า<br/>ของลูกค้า))
+  
+  subgraph Status_Group [" "]
+    direction TB
+    UC_WaitPay((รอชำระ))
+    UC_Packed((แพ็คของสำเร็จ))
+    UC_Shipping((กำลังส่ง))
+    UC_Delivered((ส่งสำเร็จ))
+  end
+  UC_ManageStatus -.->|in| UC_WaitPay
+  UC_ManageStatus -.->|in| UC_Packed
+  UC_ManageStatus -.->|in| UC_Shipping
+  UC_ManageStatus -.->|in| UC_Delivered
+
+  %% Staff Use Cases
+  UC_Login_Staff((เข้าสู่ระบบ))
+
+  Staff --- UC_Login_Staff
+  Staff --- UC_ManageStatus
+
+
+  %% Admin Use Cases
+  UC_Login_Admin((เข้าสู่ระบบ))
+  UC_Summary((ดูผลสรุปการขาย))
+  
+  UC_ManageProd((จัดการสินค้าหลังบ้าน))
+  subgraph Prod_Group [" "]
+    direction TB
+    UC_AddDelProd((เพิ่ม/ลบสินค้า))
+    UC_EditProdQty((แก้ไขจำนวนสินค้า))
+  end
+  UC_ManageProd -.->|in| UC_AddDelProd
+  UC_ManageProd -.->|in| UC_EditProdQty
+  
+  UC_ManageStaff((จัดการพนักงาน))
+  subgraph Staff_Group [" "]
+    direction TB
+    UC_AddStaff((เพิ่มพนักงานใหม่))
+    UC_DelStaff((ลบรายชื่อพนักงาน))
+  end
+  UC_ManageStaff -.->|in| UC_AddStaff
+  UC_ManageStaff -.->|in| UC_DelStaff
+
+  %% Admin Links
+  Admin --- UC_Login_Admin
+  Admin --- UC_Summary
+  Admin --- UC_ManageProd
+  Admin --- UC_ManageStaff
+  Admin --- UC_ManageStatus
+```
+
+---
+
+## 3. แผนภาพแสดงโครงสร้างข้อมูล (Class Diagram)
+แสดงโครงสร้างจำลองเชิงคลาส (Class Structure) ของระบบแอปพลิเคชันทั้งหมด ระบุดาต้าไทป์ ตัวแปร เมธอด และความสัมพันธ์ของคลาสหลังบ้านร่วมกับ API คอนโทรลเลอร์ ตลอดจนคลาสจัดเตรียมสถานะ (React Context) ของหน้าบ้าน
+
+```mermaid
+classDiagram
+  %% Relations
+  User "1" --> "many" Order : "places & tracks"
+  Order "1" *-- "many" OrderItem : "contains"
+  Order "1" *-- "1" ShippingAddress : "delivers to"
+  Product "1" *-- "1" ProductSpecs : "has details"
+  AuthContext "1" --> "1" User : "manages state of"
+  CartContext "1" --> "many" OrderItem : "calculates state of"
+  APIServer --> User : "CRUD /auth"
+  APIServer --> Product : "CRUD /products"
+  APIServer --> Order : "CRUD /orders"
+
+  class User {
+    +String id
+    +String username
+    +String password
+    +String email
+    +String role
+    +String name
+    +DateTime createdAt
+    +register(username, password, email, name) Object
+    +login(username, password) Object
+    +logout() void
+  }
+
+  class Product {
+    +String id
+    +String name
+    +String category
+    +double price
+    +int stock
+    +String image
+    +String description
+    +ProductSpecs specs
+    +getDetails() Product
+  }
+
+  class ProductSpecs {
+    +String แหล่งที่ปลูก/ผู้ผลิต
+    +String น้ำหนักสุทธิ
+    +String สารอาหารสำคัญ/วัสดุ
+    +String อายุการเก็บรักษา/การรับรอง
+  }
+
+  class Order {
+    +String id
+    +String userId
+    +List~OrderItem~ items
+    +double totalPrice
+    +ShippingAddress shippingAddress
+    +String paymentMethod
+    +String status
+    +String trackingNumber
+    +DateTime createdAt
+    +createOrder(userId, items, address, payment) Object
+    +updateStatus(status, trackingNo) Object
+    +payOrder() Object
+    +cancelOrder() Object
+  }
+
+  class OrderItem {
+    +String productId
+    +String name
+    +double price
+    +int quantity
+    +double subtotal
+  }
+
+  class ShippingAddress {
+    +String recipientName
+    +String phone
+    +String address
+    +String postalCode
+  }
+
+  class AuthContext {
+    +User user
+    +boolean loading
+    +String error
+    +login(username, password) void
+    +register(username, password, email, name) void
+    +logout() void
+    +getAuthHeaders() Object
+  }
+
+  class CartContext {
+    +List~OrderItem~ cart
+    +int cartCount
+    +double cartTotal
+    +addToCart(product, qty) void
+    +updateQuantity(productId, newQty) void
+    +removeFromCart(productId) void
+    +clearCart() void
+  }
+
+  class APIServer {
+    +ExpressApp app
+    +int PORT
+    +readData(filePath) List
+    +writeData(filePath, data) boolean
+    +handleAuth()
+    +handleProducts()
+    +handleOrders()
+    +handleAdminDashboard()
+  }
+```
+
+---
+
+## 4. แผนภาพแสดงการไหลของข้อมูล (Sequence Diagram)
+แสดงขั้นตอนการส่งข้อมูลจากฝั่งลูกค้าผ่านหน้าจอคอมพิวเตอร์หน้าบ้าน (Frontend) ไปประมวลผลเช็คสต็อกที่หลังบ้าน (Backend) และอัปเดตลงฐานข้อมูล (JSON DB)
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor Customer as 👤 ลูกค้า
+  participant FE as 🖥️ หน้าบ้าน (Frontend)
+  participant BE as ⚙️ หลังบ้าน (Backend)
+  participant DB as 💾 ฐานข้อมูล (JSON)
+  actor Staff as 📦 พนักงาน
+
+  Note over Customer, DB: 1. กระบวนการสั่งซื้อและชำระเงิน (Customer)
+  Customer->>FE: คลิก "ดำเนินการสั่งซื้อ" ในหน้าตะกร้า
+  FE->>Customer: แสดง Modal ให้กรอกข้อมูลจัดส่งและเลือกการชำระเงิน
+  Customer->>FE: กรอกข้อมูลและคลิก "ยืนยันสั่งซื้อ"
+  FE->>BE: POST /api/orders (ส่งข้อมูลตะกร้าและที่อยู่)
+  activate BE
+  BE->>DB: อ่านไฟล์ products.json เพื่อตรวจสอบสต็อก
+  DB-->>BE: ส่งกลับข้อมูลจำนวนสต็อก
+  
+  alt สต็อกเพียงพอ
+    BE->>DB: หักสต็อกตามที่สั่ง และบันทึกลง products.json
+    BE->>DB: สร้างออเดอร์ใหม่สถานะ "Pending" ลง orders.json
+    DB-->>BE: ยืนยันการบันทึกสำเร็จ
+    BE-->>FE: ส่งค่า HTTP 201 (Created)
+    FE->>Customer: แสดงหน้าจอจำลองการสแกนจ่ายเงิน (QR Code PromptPay)
+    
+    Customer->>FE: คลิกปุ่ม "ชำระเงินสำเร็จ (Simulate Payment)"
+    FE->>BE: POST /api/orders/:id/pay
+    BE->>DB: อัปเดตสถานะออเดอร์เป็น "Paid" ใน orders.json
+    DB-->>BE: ยืนยันบันทึกสำเร็จ
+    BE-->>FE: ส่งค่า HTTP 200 OK (ชำระเงินเสร็จสิ้น)
+    FE-->>FE: เคลียร์สินค้าในตะกร้าหน้าบ้าน (clearCart)
+    FE->>Customer: แสดงป๊อปอัป "สั่งซื้อสำเร็จ" และพากลับหน้าประวัติสั่งซื้อ
+    deactivate BE
+
+    Note over FE, Staff: 2. กระบวนการจัดการคำสั่งซื้อ (Staff)
+    Staff->>FE: เข้าสู่ระบบและเปิดหน้า "จัดการออเดอร์" (Admin Dashboard)
+    FE->>BE: GET /api/orders
+    activate BE
+    BE->>DB: อ่านไฟล์ orders.json
+    DB-->>BE: คืนค่ารายการคำสั่งซื้อทั้งหมด
+    BE-->>FE: แสดงรายการออเดอร์ที่เพิ่งชำระเงิน (Paid)
+    deactivate BE
+    
+    Staff->>FE: ตรวจสอบยอดเงิน และเปลี่ยนสถานะเป็น "Shipped" พร้อมใส่เลขพัสดุ
+    FE->>BE: PUT /api/orders/:id/status (status="Shipped")
+    activate BE
+    BE->>DB: อัปเดตสถานะและเลข Tracking ลง orders.json
+    DB-->>BE: ยืนยันบันทึกสำเร็จ
+    BE-->>FE: ส่งค่า HTTP 200 OK
+    deactivate BE
+    
+    Note over Customer, BE: 3. การตรวจสอบสถานะการจัดส่ง (Customer)
+    Customer->>FE: เปิดหน้า "คำสั่งซื้อของฉัน" (My Orders)
+    FE->>BE: GET /api/orders (ค้นหาด้วย userId)
+    activate BE
+    BE->>DB: ค้นหาข้อมูลออเดอร์ของลูกค้ารายนี้
+    DB-->>BE: คืนค่ารายการออเดอร์ล่าสุด
+    BE-->>FE: ส่งค่า HTTP 200 OK
+    FE->>Customer: แสดงสถานะเป็น "กำลังจัดส่ง" พร้อมเลขพัสดุ (Tracking Number)
+    deactivate BE
+
+  else สต็อกไม่เพียงพอ
+    activate BE
+    BE-->>FE: ส่งค่า HTTP 400 (แจ้งข้อผิดพลาดสต็อกไม่พอ)
+    deactivate BE
+    FE->>Customer: แสดงกล่องแจ้งเตือน "สินค้าบางรายการมีจำนวนไม่เพียงพอ"
+  end
+```
+
+---
+
+## 5. แผนผังต้นแบบลายเส้น (Wireframe - หน้าหลัก)
+โครงร่างแสดงตำแหน่งการวางข้อมูลของหน้าร้านค้าออนไลน์หลักเพื่อความเรียบง่ายและเป็นระเบียบ
+
+```text
++---------------------------------------------------------------------------------+
+|  VITA LIFE                                          [ร้านค้า]  [ตะกร้า (0)]  [👤 สมชาย] |
++---------------------------------------------------------------------------------+
+|                                                                                 |
+|   ===================== VITALIFE WELLNESS =====================                 |
+|   ยกระดับสุขภาพและการดำเนินชีวิตของคุณด้วยผลิตภัณฑ์พรีเมียมคัดสรรพิเศษเพื่อความสุข     |
+|                                                                                 |
++---------------------------------------------------------------------------------+
+|  [🔍 ค้นหาผลิตภัณฑ์สุขภาพ...]                                                      |
+|                                                                                 |
+|  ( ทั้งหมด )  ( อาหารเสริม )  ( อาหาร/เครื่องดื่ม )  ( อุปกรณ์ฟิตเนส )  ( ผลิตภัณฑ์ผิว )   |
++---------------------------------------------------------------------------------+
+|  +--------------------+  +--------------------+  +--------------------+         |
+|  | [Tag: Supplements] |  | [Tag: Organic Food]|  | [Tag: Fitness Gear]|         |
+|  |                    |  |                    |  |                    |         |
+|  |    [รูปเวย์โปรตีน]   |  |     [รูปผงมัทฉะ]    |  |    [รูปเสื่อโยคะ]    |         |
+|  |                    |  |                    |  |                    |         |
+|  | เวย์โปรตีนไอโซเลท...|  | ผงมัทฉะออร์แกนิก... |  | เสื่อโยคะยางพารา... |         |
+|  | ✓ มีสินค้าในสต็อก    |  | ✓ มีสินค้าในสต็อก    |  | ⚠️ เหลือเพียง 2 ชิ้น |         |
+|  | ราคา: 1,890 บาท    |  | ราคา: 690 บาท      |  | ราคา: 2,450 บาท    |         |
+|  |     [ใส่ตะกร้า]     |  |     [ใส่ตะกร้า]     |  |     [ใส่ตะกร้า]     |         |
+|  +--------------------+  +--------------------+  +--------------------+         |
++---------------------------------------------------------------------------------+
+|  © 2026 VITALIFE E-Commerce Co., Ltd. All rights reserved.                      |
++---------------------------------------------------------------------------------+
+```
+
+---
+
+## 6. ต้นแบบความละเอียดสูงเพื่อโต้ตอบ (High-Fidelity Interactive Prototype)
+สำหรับระบบ VitaLife ตัวโปรเจ็คโค้ดของหน้าบ้าน (React/Vite) และหลังบ้าน (Node.js/Express) ในปัจจุบันทำหน้าที่เป็น **High-Fidelity Prototype (ต้นแบบที่มีความเที่ยงตรงสูง)** ซึ่งมีคุณลักษณะการโต้ตอบที่ครบถ้วน ดังนี้:
+
+*   **มีชีวิตจริงและสามารถใช้งานได้จริง (Working Code):** สามารถพิมพ์ค้นหา กรองหมวดหมู่สินค้า กดเพิ่มสินค้าเข้าสู่ตะกร้าสะสมยอด และคลิกเปิด Modal ชำระเงินเพื่อกรอกข้อมูลจัดส่งที่เชื่อมโยงกันได้จริง
+*   **ผสานสไตล์และธีมความงามระดับลักชัวรี่:** แสดงผลด้วยสีสันที่ถูกกำหนดขึ้นจากดีไซน์เนอร์อย่างเป็นทางการ (สีเขียวป่ามรกตสว่างและแสงสะท้อนขอบสีทอง) นำเสนอภาพประกอบจริงจาก AI
+*   **ระบบจำลองข้อมูลสมจริง:** แอดมินสามารถเพิ่มข้อมูลสินค้าสุขภาพเข้าไปในระบบเพื่อเทสพฤติกรรมของแอปพลิเคชันเสมือนอยู่บนระบบโปรดักชันจริงก่อนเปิดตัว
