@@ -40,6 +40,18 @@ export default function Navbar({ currentPage, setCurrentPage }) {
           </button>
         )}
 
+        {user && (user.role === 'admin' || user.role === 'staff') && (
+          <button 
+            onClick={() => setCurrentPage('admin')} 
+            style={{
+              ...styles.navBtn,
+              ...(currentPage === 'admin' ? styles.navBtnActive : {})
+            }}
+          >
+            จัดการหลังร้าน (Admin)
+          </button>
+        )}
+
         <button 
           onClick={() => setCurrentPage('cart')} 
           style={{

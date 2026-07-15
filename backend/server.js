@@ -285,6 +285,103 @@ app.put('/api/orders/:id/status', (req, res) => {
   res.json({ message: 'อัปเดตสถานะคำสั่งซื้อเรียบร้อยแล้ว', order: orders[orderIndex] });
 });
 
+// ================= ADMIN APIs =================
+
+// Get all users (admin/staff only)
+app.get('/api/admin/users', (req, res) => {
+  const userRole = req.headers['x-user-role'];
+  if (userRole !== 'admin' && userRole !== 'staff') {
+    return res.status(403).json({ message: 'ไม่มีสิทธิ์ในการเข้าถึงข้อมูลผู้ใช้' });
+  }
+  const users = readData(USERS_PATH);
+  // Map users to remove passwords before returning
+  const safeUsers = users.map(({ password, ...u }) => u);
+  res.json(safeUsers);
+});
+
+// Add new product (admin/staff only)
+app.post('/api/products', (req, res) => {
+  const userRole = req.headers['x-user-role'];
+  if (userRole !== 'admin' && userRole !== 'staff') {
+    return res.status(403).json({ message: 'ไม่มีสิทธิ์ในการเพิ่มสินค้า' });
+  }
+  const { name, category, price, stock, image, description, specs } = req.body;
+  if (!name || !category || price === undefined || stock === undefined || !image || !description) {
+    return res.status(400).json({ message: 'ข้อมูลสินค้าไม่ครบถ้วน' });
+  }
+  const products = readData(PRODUCTS_PATH);
+  const newProduct = {
+    id: 'p_' + Date.now(),
+    name,
+    category,
+    price: Number(price),
+    stock: Number(stock),
+    image,
+    description,
+    specs: {
+      manufacturer: specs?.manufacturer || 'VitaLife Labs',
+      weight: specs?.weight || 'N/A',
+      materials: specs?.materials || 'N/A',
+      warranty: specs?.warranty || 'FDA Approved'
+    }
+  };
+  products.push(newProduct);
+  writeData(PRODUCTS_PATH, products);
+  res.status(201).json({ message: 'เพิ่มสินค้าสำเร็จ', product: newProduct });
+});
+
+// Edit product details & stock (admin/staff only)
+app.put('/api/products/:id', (req, res) => {
+  const userRole = req.headers['x-user-role'];
+  if (userRole !== 'admin' && userRole !== 'staff') {
+    return res.status(403).json({ message: 'ไม่มีสิทธิ์ในการแก้ไขสินค้า' });
+  }
+  const { id } = req.params;
+  const { name, category, price, stock, image, description, specs } = req.body;
+  const products = readData(PRODUCTS_PATH);
+  const productIndex = products.findIndex(p => p.id === id);
+  if (productIndex === -1) {
+    return res.status(404).json({ message: 'ไม่พบสินค้าในระบบ' });
+  }
+  const currentProduct = products[productIndex];
+  
+  // Update fields
+  if (name !== undefined) currentProduct.name = name;
+  if (category !== undefined) currentProduct.category = category;
+  if (price !== undefined) currentProduct.price = Number(price);
+  if (stock !== undefined) currentProduct.stock = Number(stock);
+  if (image !== undefined) currentProduct.image = image;
+  if (description !== undefined) currentProduct.description = description;
+  if (specs !== undefined) {
+    currentProduct.specs = {
+      ...currentProduct.specs,
+      ...specs
+    };
+  }
+  
+  products[productIndex] = currentProduct;
+  writeData(PRODUCTS_PATH, products);
+  res.json({ message: 'แก้ไขสินค้าสำเร็จ', product: currentProduct });
+});
+
+// Delete product (admin/staff only)
+app.delete('/api/products/:id', (req, res) => {
+  const userRole = req.headers['x-user-role'];
+  if (userRole !== 'admin' && userRole !== 'staff') {
+    return res.status(403).json({ message: 'ไม่มีสิทธิ์ในการลบสินค้า' });
+  }
+  const { id } = req.params;
+  const products = readData(PRODUCTS_PATH);
+  const filteredProducts = products.filter(p => p.id !== id);
+  if (products.length === filteredProducts.length) {
+    return res.status(404).json({ message: 'ไม่พบสินค้าในระบบ' });
+  }
+  writeData(PRODUCTS_PATH, filteredProducts);
+  res.json({ message: 'ลบสินค้าสำเร็จ' });
+});
+
+
+
 // Start Server
 app.listen(PORT, () => {
   console.log(`VitaLife Health Store Backend Server running on port ${PORT}`);
