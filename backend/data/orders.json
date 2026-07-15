@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "id": "ord_1784128667738",
+    "userId": "u2",
+    "items": [
+      {
+        "productId": "p_1",
+        "name": "เวย์โปรตีนไอโซเลทพรีเมียม (Whey Protein Isolate)",
+        "price": 1890,
+        "quantity": 1,
+        "subtotal": 1890
+      }
+    ],
+    "totalPrice": 1890,
+    "shippingAddress": {
+      "recipientName": "สมชาย รักสุขภาพ",
+      "phone": "0891234567",
+      "address": "123/45 ซอยสุขุมวิท กรุงเทพมหานคร",
+      "postalCode": "10110"
+    },
+    "paymentMethod": "PromptPay",
+    "status": "Paid",
+    "trackingNumber": "",
+    "createdAt": "2026-07-15T15:17:47.738Z"
+  }
+]
