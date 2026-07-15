@@ -124,11 +124,18 @@ export default function Home({ onViewDetails }) {
           {filteredProducts.map(product => (
             <div key={product.id} style={styles.productCard} className="glass-card">
               <div style={styles.categoryBadge}>{product.category}</div>
-              <div style={styles.imgContainer}>
+              <div style={styles.imgContainer} onClick={() => onViewDetails(product.id)}>
                 <img src={product.image} alt={product.name} style={styles.productImg} />
               </div>
               <div style={styles.productInfo}>
-                <h3 style={styles.productName}>{product.name}</h3>
+                <h3 
+                  style={styles.productName} 
+                  onClick={() => onViewDetails(product.id)}
+                  onMouseEnter={(e) => e.target.style.color = 'var(--primary-glow)'}
+                  onMouseLeave={(e) => e.target.style.color = 'var(--text-primary)'}
+                >
+                  {product.name}
+                </h3>
                 
                 {/* Stock status indicator */}
                 <div style={styles.stockRow}>
@@ -155,18 +162,27 @@ export default function Home({ onViewDetails }) {
                     <span style={styles.priceValue}>{product.price.toLocaleString()} บาท</span>
                   </div>
                   
-                  <button
-                    onClick={() => handleAddToCart(product)}
-                    disabled={product.stock <= 0}
-                    className="btn-neon"
-                    style={{
-                      ...styles.addBtn,
-                      ...(addedItemIds.has(product.id) ? styles.addBtnSuccess : {}),
-                      ...(product.stock <= 0 ? styles.addBtnDisabled : {})
-                    }}
-                  >
-                    {product.stock <= 0 ? 'หมด' : addedItemIds.has(product.id) ? 'เพิ่มแล้ว! ✓' : 'ใส่ตะกร้า'}
-                  </button>
+                  <div style={styles.btnGroup}>
+                    <button
+                      onClick={() => onViewDetails(product.id)}
+                      className="btn-outline-neon"
+                      style={styles.detailsBtn}
+                    >
+                      รายละเอียด
+                    </button>
+                    <button
+                      onClick={() => handleAddToCart(product)}
+                      disabled={product.stock <= 0}
+                      className="btn-neon"
+                      style={{
+                        ...styles.addBtn,
+                        ...(addedItemIds.has(product.id) ? styles.addBtnSuccess : {}),
+                        ...(product.stock <= 0 ? styles.addBtnDisabled : {})
+                      }}
+                    >
+                      {product.stock <= 0 ? 'หมด' : addedItemIds.has(product.id) ? 'เพิ่มแล้ว! ✓' : 'ใส่ตะกร้า'}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -294,6 +310,7 @@ const styles = {
     height: '200px',
     backgroundColor: 'rgba(12, 19, 14, 0.5)',
     overflow: 'hidden',
+    cursor: 'pointer',
   },
   productImg: {
     width: '100%',
@@ -312,6 +329,8 @@ const styles = {
     fontSize: '1.2rem',
     color: 'var(--text-primary)',
     marginBottom: '0.5rem',
+    cursor: 'pointer',
+    transition: 'color 0.2s ease',
   },
   stockRow: {
     marginBottom: '0.8rem',
@@ -343,9 +362,25 @@ const styles = {
     color: 'var(--secondary-glow)',
     fontFamily: 'var(--font-title)',
   },
+  btnGroup: {
+    display: 'flex',
+    gap: '0.5rem',
+  },
+  detailsBtn: {
+    padding: '0.6rem 0.8rem',
+    fontSize: '0.85rem',
+    borderRadius: '8px',
+    border: '1px solid var(--primary-glow)',
+    background: 'transparent',
+    color: 'var(--primary-glow)',
+    cursor: 'pointer',
+    fontFamily: 'var(--font-title)',
+    fontWeight: '600',
+    transition: 'all 0.3s ease',
+  },
   addBtn: {
-    padding: '0.6rem 1.2rem',
-    fontSize: '0.9rem',
+    padding: '0.6rem 0.8rem',
+    fontSize: '0.85rem',
     borderRadius: '8px',
   },
   addBtnSuccess: {
