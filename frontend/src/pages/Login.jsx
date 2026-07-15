@@ -64,14 +64,14 @@ const Login = ({ onLoginSuccess }) => {
       <div className="glass-card glow-cyan" style={styles.loginCard}>
         {/* Tab Headers */}
         <div style={styles.tabs}>
-          <button 
-            style={isLoginTab ? styles.tabActive : styles.tab} 
+          <button
+            style={isLoginTab ? styles.tabActive : styles.tab}
             onClick={() => { setIsLoginTab(true); setError(null); }}
           >
             เข้าสู่ระบบ
           </button>
-          <button 
-            style={!isLoginTab ? styles.tabActive : styles.tab} 
+          <button
+            style={!isLoginTab ? styles.tabActive : styles.tab}
             onClick={() => { setIsLoginTab(false); setError(null); }}
           >
             สมัครสมาชิก
@@ -85,8 +85,8 @@ const Login = ({ onLoginSuccess }) => {
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.inputGroup}>
             <label style={styles.label}>ชื่อผู้ใช้งาน (Username)</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -97,8 +97,8 @@ const Login = ({ onLoginSuccess }) => {
 
           <div style={styles.inputGroup}>
             <label style={styles.label}>รหัสผ่าน (Password)</label>
-            <input 
-              type="password" 
+            <input
+              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -111,8 +111,8 @@ const Login = ({ onLoginSuccess }) => {
             <>
               <div style={styles.inputGroup}>
                 <label style={styles.label}>ชื่อ-นามสกุล (Full Name)</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
@@ -123,8 +123,8 @@ const Login = ({ onLoginSuccess }) => {
 
               <div style={styles.inputGroup}>
                 <label style={styles.label}>อีเมล (Email)</label>
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -136,10 +136,10 @@ const Login = ({ onLoginSuccess }) => {
           )}
 
           <button type="submit" className="btn-neon" style={styles.submitBtn} disabled={loading}>
-            {loading 
-              ? 'กำลังดำเนินการ...' 
-              : isLoginTab 
-                ? 'เข้าสู่ระบบร้านค้า' 
+            {loading
+              ? 'กำลังดำเนินการ...'
+              : isLoginTab
+                ? 'เข้าสู่ระบบร้านค้า'
                 : 'ลงทะเบียนสมาชิก'}
           </button>
         </form>
@@ -174,7 +174,7 @@ const styles = {
   loginCard: {
     width: '100%',
     maxWidth: '430px',
-    padding: '2.5rem 2rem',
+    padding: '2rem 2rem',
   },
   tabs: {
     display: 'flex',
