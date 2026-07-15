@@ -43,7 +43,7 @@
       "postalCode": "999"
     },
     "paymentMethod": "PromptPay",
-    "status": "Delivered",
+    "status": "Cancelled",
     "trackingNumber": "",
     "createdAt": "2026-07-15T15:54:41.131Z"
   },
@@ -67,7 +67,7 @@
       "postalCode": "ๅ"
     },
     "paymentMethod": "PromptPay",
-    "status": "Paid",
+    "status": "Cancelled",
     "trackingNumber": "",
     "createdAt": "2026-07-15T17:43:31.769Z"
   }

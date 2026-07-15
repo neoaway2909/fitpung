@@ -341,6 +341,76 @@ app.get('/api/admin/users', (req, res) => {
   res.json(safeUsers);
 });
 
+// Add new staff/user account (admin only)
+app.post('/api/admin/users', (req, res) => {
+  const userRole = req.headers['x-user-role'];
+  if (userRole !== 'admin') {
+    return res.status(403).json({ message: 'ไม่มีสิทธิ์ในการเพิ่มบัญชีผู้ใช้ (สำหรับ Admin เท่านั้น)' });
+  }
+
+  const { username, password, email, name, role } = req.body;
+  if (!username || !password || !email || !name || !role) {
+    return res.status(400).json({ message: 'โปรดกรอกข้อมูลให้ครบถ้วน' });
+  }
+
+  if (role !== 'staff' && role !== 'admin') {
+    return res.status(400).json({ message: 'บทบาทไม่ถูกต้อง (ต้องเป็น staff หรือ admin)' });
+  }
+
+  const users = readData(USERS_PATH);
+  const userExists = users.some(u => u.username.toLowerCase() === username.toLowerCase());
+  if (userExists) {
+    return res.status(400).json({ message: 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว' });
+  }
+
+  const newUser = {
+    id: 'u_' + Date.now(),
+    username,
+    password, // Plain text as per implementation plan
+    email,
+    name,
+    role
+  };
+
+  users.push(newUser);
+  writeData(USERS_PATH, users);
+
+  const { password: _, ...userWithoutPassword } = newUser;
+  res.status(201).json({ message: 'เพิ่มบัญชีสำเร็จ', user: userWithoutPassword });
+});
+
+// Delete staff/user account (admin only)
+app.delete('/api/admin/users/:id', (req, res) => {
+  const userRole = req.headers['x-user-role'];
+  const userId = req.headers['x-user-id'];
+
+  if (userRole !== 'admin') {
+    return res.status(403).json({ message: 'ไม่มีสิทธิ์ในการลบบัญชีผู้ใช้ (สำหรับ Admin เท่านั้น)' });
+  }
+
+  const { id } = req.params;
+  if (id === userId) {
+    return res.status(400).json({ message: 'ไม่สามารถลบบัญชีของตัวเองได้' });
+  }
+
+  const users = readData(USERS_PATH);
+  const userIndex = users.findIndex(u => u.id === id);
+  if (userIndex === -1) {
+    return res.status(404).json({ message: 'ไม่พบผู้ใช้ในระบบ' });
+  }
+
+  // Ensure we don't delete the default admin account "u1"
+  if (id === 'u1') {
+    return res.status(400).json({ message: 'ไม่สามารถลบบัญชีผู้ดูแลระบบหลัก (System Administrator) ได้' });
+  }
+
+  const deletedUser = users[userIndex];
+  const updatedUsers = users.filter(u => u.id !== id);
+  writeData(USERS_PATH, updatedUsers);
+
+  res.json({ message: `ลบบัญชีของ ${deletedUser.name} สำเร็จ` });
+});
+
 // Add new product (admin/staff only)
 app.post('/api/products', (req, res) => {
   const userRole = req.headers['x-user-role'];
