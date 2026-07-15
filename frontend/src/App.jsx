@@ -29,9 +29,9 @@ const MainLayout = () => {
       case 'detail':
         return <ProductDetail productId={selectedProductId} onBack={() => setCurrentPage('home')} />;
       case 'cart':
-        return <Cart onNavigate={setCurrentPage} />;
+        return (user?.role === 'admin' || user?.role === 'staff') ? <Home onViewDetails={handleViewDetails} /> : <Cart onNavigate={setCurrentPage} />;
       case 'orders':
-        return <Orders />;
+        return (user?.role === 'admin' || user?.role === 'staff') ? <Home onViewDetails={handleViewDetails} /> : <Orders />;
       case 'login':
         return <Login onLoginSuccess={(loggedInUser) => {
           if (loggedInUser?.role === 'admin' || loggedInUser?.role === 'staff') {

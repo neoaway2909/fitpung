@@ -14,7 +14,7 @@ export default function Navbar({ currentPage, setCurrentPage }) {
   return (
     <nav style={styles.nav}>
       <div style={styles.logo} onClick={() => setCurrentPage('home')}>
-        VITA<span style={styles.logoGlow}>LIFE</span>
+        FIT<span style={styles.logoGlow}>PUNG</span>
       </div>
       
       <div style={styles.menu}>
@@ -28,7 +28,7 @@ export default function Navbar({ currentPage, setCurrentPage }) {
           ร้านค้า (Shop)
         </button>
 
-        {user && (
+        {user && user.role !== 'admin' && user.role !== 'staff' && (
           <button 
             onClick={() => setCurrentPage('orders')} 
             style={{
@@ -52,16 +52,18 @@ export default function Navbar({ currentPage, setCurrentPage }) {
           </button>
         )}
 
-        <button 
-          onClick={() => setCurrentPage('cart')} 
-          style={{
-            ...styles.cartBtn,
-            ...(currentPage === 'cart' ? styles.cartBtnActive : {})
-          }}
-        >
-          🛒 ตะกร้าสินค้า
-          {cartCount > 0 && <span style={styles.cartBadge}>{cartCount}</span>}
-        </button>
+        {(!user || (user.role !== 'admin' && user.role !== 'staff')) && (
+          <button 
+            onClick={() => setCurrentPage('cart')} 
+            style={{
+              ...styles.cartBtn,
+              ...(currentPage === 'cart' ? styles.cartBtnActive : {})
+            }}
+          >
+            🛒 ตะกร้าสินค้า
+            {cartCount > 0 && <span style={styles.cartBadge}>{cartCount}</span>}
+          </button>
+        )}
 
         {user ? (
           <div style={styles.userContainer}>

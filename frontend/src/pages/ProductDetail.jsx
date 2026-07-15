@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function ProductDetail({ productId, onBack }) {
   const [product, setProduct] = useState(null);
@@ -9,6 +10,7 @@ export default function ProductDetail({ productId, onBack }) {
   const [addedSuccess, setAddedSuccess] = useState(false);
 
   const { addToCart } = useCart();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -119,7 +121,7 @@ export default function ProductDetail({ productId, onBack }) {
           <p style={styles.description}>{product.description}</p>
 
           {/* Purchase Controls */}
-          {product.stock > 0 && (
+          {product.stock > 0 && (!user || (user.role !== 'admin' && user.role !== 'staff')) && (
             <div style={styles.purchaseControls} className="glass-card">
               <div style={styles.quantityRow}>
                 <span style={styles.quantityLabel}>จำนวนที่ต้องการสั่งซื้อ:</span>

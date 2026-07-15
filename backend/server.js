@@ -61,7 +61,7 @@ const initialProducts = [
     image: 'https://images.unsplash.com/photo-1579758629938-03607ccdbaba?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
     description: 'เวย์โปรตีนไอโซเลทเข้มข้น ดูดซึมเร็ว ช่วยเสริมสร้างและฟื้นฟูกล้ามเนื้อได้อย่างมีประสิทธิภาพ เหมาะสำหรับผู้รักสุขภาพและผู้ออกกำลังกาย',
     specs: {
-      manufacturer: 'VitaLife Labs USA',
+      manufacturer: 'Fitpung Labs USA',
       weight: '900 กรัม',
       materials: 'Whey Protein Isolate 100%',
       warranty: 'GMP Certified / FDA Approved'
@@ -319,7 +319,7 @@ app.post('/api/products', (req, res) => {
     image,
     description,
     specs: {
-      manufacturer: specs?.manufacturer || 'VitaLife Labs',
+      manufacturer: specs?.manufacturer || 'Fitpung Labs',
       weight: specs?.weight || 'N/A',
       materials: specs?.materials || 'N/A',
       warranty: specs?.warranty || 'FDA Approved'
@@ -384,5 +384,5 @@ app.delete('/api/products/:id', (req, res) => {
 
 // Start Server
 app.listen(PORT, () => {
-  console.log(`VitaLife Health Store Backend Server running on port ${PORT}`);
+  console.log(`Fitpung Health Store Backend Server running on port ${PORT}`);
 });

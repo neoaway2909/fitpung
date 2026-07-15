@@ -80,7 +80,7 @@ export default function Home({ onViewDetails }) {
     <div style={styles.container} className="page-fade-in">
       {/* Hero Banner */}
       <div style={styles.heroBanner} className="glass-card glow-cyan">
-        <h1 style={styles.heroTitle}>VITALIFE WELLNESS</h1>
+        <h1 style={styles.heroTitle}>FITPUNG WELLNESS</h1>
         <p style={styles.heroSubtitle}>
           ยกระดับสุขภาพและการดำเนินชีวิตของคุณด้วยผลิตภัณฑ์พรีเมียมคัดสรรพิเศษเพื่อความสุขที่ยั่งยืน
         </p>
@@ -166,22 +166,27 @@ export default function Home({ onViewDetails }) {
                     <button
                       onClick={() => onViewDetails(product.id)}
                       className="btn-outline-neon"
-                      style={styles.detailsBtn}
+                      style={{
+                        ...styles.detailsBtn,
+                        ...((user?.role === 'admin' || user?.role === 'staff') ? { width: '100%', flexGrow: 1 } : {})
+                      }}
                     >
                       รายละเอียด
                     </button>
-                    <button
-                      onClick={() => handleAddToCart(product)}
-                      disabled={product.stock <= 0}
-                      className="btn-neon"
-                      style={{
-                        ...styles.addBtn,
-                        ...(addedItemIds.has(product.id) ? styles.addBtnSuccess : {}),
-                        ...(product.stock <= 0 ? styles.addBtnDisabled : {})
-                      }}
-                    >
-                      {product.stock <= 0 ? 'หมด' : addedItemIds.has(product.id) ? 'เพิ่มแล้ว! ✓' : 'ใส่ตะกร้า'}
-                    </button>
+                    {(!user || (user.role !== 'admin' && user.role !== 'staff')) && (
+                      <button
+                        onClick={() => handleAddToCart(product)}
+                        disabled={product.stock <= 0}
+                        className="btn-neon"
+                        style={{
+                          ...styles.addBtn,
+                          ...(addedItemIds.has(product.id) ? styles.addBtnSuccess : {}),
+                          ...(product.stock <= 0 ? styles.addBtnDisabled : {})
+                        }}
+                      >
+                        {product.stock <= 0 ? 'หมด' : addedItemIds.has(product.id) ? 'เพิ่มแล้ว! ✓' : 'ใส่ตะกร้า'}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

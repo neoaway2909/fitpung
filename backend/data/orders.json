@@ -43,8 +43,32 @@
       "postalCode": "999"
     },
     "paymentMethod": "PromptPay",
-    "status": "Paid",
+    "status": "Delivered",
     "trackingNumber": "",
     "createdAt": "2026-07-15T15:54:41.131Z"
+  },
+  {
+    "id": "ord_1784137411769",
+    "userId": "u2",
+    "items": [
+      {
+        "productId": "p_2",
+        "name": "ผงมัทฉะออร์แกนิกญี่ปุ่น (Organic Matcha Powder)",
+        "price": 690,
+        "quantity": 1,
+        "subtotal": 690
+      }
+    ],
+    "totalPrice": 690,
+    "shippingAddress": {
+      "recipientName": "ๅ",
+      "phone": "ๅ",
+      "address": "ๅ",
+      "postalCode": "ๅ"
+    },
+    "paymentMethod": "PromptPay",
+    "status": "Paid",
+    "trackingNumber": "",
+    "createdAt": "2026-07-15T17:43:31.769Z"
   }
 ]

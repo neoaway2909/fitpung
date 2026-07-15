@@ -375,25 +375,45 @@ export default function Admin() {
       <div style={styles.tabBar}>
         <button 
           onClick={() => setActiveTab('dashboard')} 
-          style={{ ...styles.tabBtn, ...(activeTab === 'dashboard' ? styles.tabBtnActive : {}) }}
+          style={{
+            ...styles.tabBtn,
+            borderBottomColor: activeTab === 'dashboard' ? 'var(--primary-glow)' : 'transparent',
+            color: activeTab === 'dashboard' ? 'var(--primary-glow)' : 'var(--text-secondary)',
+            backgroundColor: activeTab === 'dashboard' ? 'rgba(16, 185, 129, 0.08)' : 'transparent',
+          }}
         >
           📊 ภาพรวม (Overview)
         </button>
         <button 
           onClick={() => setActiveTab('orders')} 
-          style={{ ...styles.tabBtn, ...(activeTab === 'orders' ? styles.tabBtnActive : {}) }}
+          style={{
+            ...styles.tabBtn,
+            borderBottomColor: activeTab === 'orders' ? 'var(--primary-glow)' : 'transparent',
+            color: activeTab === 'orders' ? 'var(--primary-glow)' : 'var(--text-secondary)',
+            backgroundColor: activeTab === 'orders' ? 'rgba(16, 185, 129, 0.08)' : 'transparent',
+          }}
         >
           📦 จัดการคำสั่งซื้อ ({orders.length})
         </button>
         <button 
           onClick={() => setActiveTab('products')} 
-          style={{ ...styles.tabBtn, ...(activeTab === 'products' ? styles.tabBtnActive : {}) }}
+          style={{
+            ...styles.tabBtn,
+            borderBottomColor: activeTab === 'products' ? 'var(--primary-glow)' : 'transparent',
+            color: activeTab === 'products' ? 'var(--primary-glow)' : 'var(--text-secondary)',
+            backgroundColor: activeTab === 'products' ? 'rgba(16, 185, 129, 0.08)' : 'transparent',
+          }}
         >
           🥑 คลังสินค้า ({products.length})
         </button>
         <button 
           onClick={() => setActiveTab('performance')} 
-          style={{ ...styles.tabBtn, ...(activeTab === 'performance' ? styles.tabBtnActive : {}) }}
+          style={{
+            ...styles.tabBtn,
+            borderBottomColor: activeTab === 'performance' ? 'var(--primary-glow)' : 'transparent',
+            color: activeTab === 'performance' ? 'var(--primary-glow)' : 'var(--text-secondary)',
+            backgroundColor: activeTab === 'performance' ? 'rgba(16, 185, 129, 0.08)' : 'transparent',
+          }}
         >
           ⚡ Performance QA Tester
         </button>
@@ -972,7 +992,7 @@ export default function Admin() {
                     value={prodForm.manufacturer} 
                     onChange={(e) => setProdForm({ ...prodForm, manufacturer: e.target.value })}
                     style={styles.formControl}
-                    placeholder="เช่น VitaLife Labs USA"
+                    placeholder="เช่น Fitpung Labs USA"
                   />
                 </div>
                 <div style={styles.formGroupHalf}>
@@ -1077,18 +1097,16 @@ const styles = {
   tabBtn: {
     padding: '0.8rem 1.2rem',
     backgroundColor: 'transparent',
-    border: 'none',
+    borderTop: 'none',
+    borderLeft: 'none',
+    borderRight: 'none',
+    borderBottom: '3px solid transparent',
     color: 'var(--text-secondary)',
     fontSize: '0.95rem',
     fontWeight: '600',
     cursor: 'pointer',
     borderRadius: '8px 8px 0 0',
     transition: 'all 0.3s ease',
-  },
-  tabBtnActive: {
-    color: 'var(--primary-glow)',
-    borderBottom: '3px solid var(--primary-glow)',
-    backgroundColor: 'rgba(16, 185, 129, 0.08)',
   },
   tabContent: {
     marginTop: '1rem',

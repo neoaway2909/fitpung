@@ -231,7 +231,7 @@ export default function CheckoutModal({ onClose, onNavigate }) {
                 </div>
               </div>
               <div style={styles.ppFooter}>
-                <span>VITALIFE WELLNESS E-COMMERCE</span>
+                <span>FITPUNG WELLNESS E-COMMERCE</span>
               </div>
             </div>
 
