@@ -151,7 +151,7 @@ const Login = ({ onLoginSuccess }) => {
             <button type="button" style={styles.quickBtnAdmin} onClick={() => handleQuickFill('admin')}>
               👤 แอดมิน (Admin)
             </button>
-            <button type="button" style={{ ...styles.quickBtnAdmin, backgroundColor: 'rgba(16, 185, 129, 0.1)', borderColor: 'var(--primary-glow)', color: '#D1FAE5' }} onClick={() => handleQuickFill('staff')}>
+            <button type="button" style={{ ...styles.quickBtnAdmin, backgroundColor: 'rgba(16, 185, 129, 0.1)', border: '1px solid var(--primary-glow)', color: '#D1FAE5' }} onClick={() => handleQuickFill('staff')}>
               📦 พนักงาน (Staff)
             </button>
             <button type="button" style={styles.quickBtnCustomer} onClick={() => handleQuickFill('customer')}>
@@ -183,7 +183,7 @@ const styles = {
   },
   tab: {
     flex: 1,
-    background: 'none',
+    backgroundColor: 'transparent',
     borderTop: 'none',
     borderRight: 'none',
     borderLeft: 'none',
@@ -200,7 +200,7 @@ const styles = {
   },
   tabActive: {
     flex: 1,
-    background: 'none',
+    backgroundColor: 'transparent',
     borderTop: 'none',
     borderRight: 'none',
     borderLeft: 'none',
@@ -249,7 +249,7 @@ const styles = {
     outline: 'none',
     transition: 'border-color 0.2s ease',
     ':focus': {
-      borderColor: 'var(--primary-glow)',
+      border: '1px solid var(--primary-glow)',
     }
   },
   submitBtn: {

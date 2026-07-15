@@ -139,7 +139,7 @@ export default function Cart({ onNavigate }) {
                   <div style={styles.subtotalCol}>
                     <div style={styles.labelMini}>ราคารวม</div>
                     <div style={styles.subtotalContainer}>
-                      <span style={styles.subtotalText}>{item.subtotal.toLocaleString()} บาท</span>
+                      <span style={styles.subtotalText}>{(item.subtotal ?? (item.price * item.quantity)).toLocaleString()} บาท</span>
                     </div>
                   </div>
 
@@ -279,7 +279,7 @@ const styles = {
     borderLeft: '3px solid var(--warning)',
   },
   dismissBtn: {
-    background: 'none',
+    backgroundColor: 'transparent',
     border: 'none',
     color: 'var(--text-secondary)',
     cursor: 'pointer',
@@ -370,13 +370,13 @@ const styles = {
   },
   qtyBtn: {
     border: 'none',
-    background: 'none',
+    backgroundColor: 'transparent',
     color: 'var(--text-secondary)',
     padding: '0.4rem 0.8rem',
     fontSize: '1rem',
     fontWeight: 'bold',
     cursor: 'pointer',
-    transition: 'background 0.2s, color 0.2s',
+    transition: 'background-color 0.2s, color 0.2s',
     outline: 'none',
     '&:hover': {
       backgroundColor: 'rgba(255,255,255,0.05)',
@@ -408,7 +408,7 @@ const styles = {
     fontSize: '1.05rem',
   },
   removeBtn: {
-    background: 'none',
+    backgroundColor: 'transparent',
     border: 'none',
     cursor: 'pointer',
     fontSize: '1.3rem',
@@ -478,7 +478,7 @@ const styles = {
     transition: 'all 0.2s ease',
     outline: 'none',
     '&:hover': {
-      borderColor: 'var(--primary-glow)',
+      border: '1px solid var(--primary-glow)',
       color: 'var(--text-primary)',
     }
   },

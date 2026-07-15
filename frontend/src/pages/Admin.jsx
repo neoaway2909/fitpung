@@ -1076,7 +1076,7 @@ const styles = {
   },
   tabBtn: {
     padding: '0.8rem 1.2rem',
-    background: 'none',
+    backgroundColor: 'transparent',
     border: 'none',
     color: 'var(--text-secondary)',
     fontSize: '0.95rem',

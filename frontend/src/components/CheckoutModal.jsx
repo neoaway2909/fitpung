@@ -315,7 +315,7 @@ const styles = {
     color: 'var(--text-primary)',
   },
   closeBtn: {
-    background: 'none',
+    backgroundColor: 'transparent',
     border: 'none',
     color: 'var(--text-secondary)',
     fontSize: '1.8rem',

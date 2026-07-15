@@ -119,7 +119,7 @@ const styles = {
     gap: '1.5rem',
   },
   navBtn: {
-    background: 'none',
+    backgroundColor: 'transparent',
     border: 'none',
     color: 'var(--text-secondary)',
     fontFamily: 'var(--font-body)',
@@ -136,7 +136,7 @@ const styles = {
     backgroundColor: 'rgba(16, 185, 129, 0.08)',
   },
   cartBtn: {
-    background: 'rgba(21, 34, 25, 0.8)',
+    backgroundColor: 'rgba(21, 34, 25, 0.8)',
     border: '1px solid var(--border-color)',
     color: 'var(--text-primary)',
     padding: '0.5rem 1rem',
@@ -151,7 +151,7 @@ const styles = {
     position: 'relative',
   },
   cartBtnActive: {
-    borderColor: 'var(--primary-glow)',
+    border: '1px solid var(--primary-glow)',
     boxShadow: 'var(--shadow-neon)',
   },
   cartBadge: {
@@ -188,7 +188,7 @@ const styles = {
     cursor: 'pointer',
   },
   logoutBtn: {
-    background: 'none',
+    backgroundColor: 'transparent',
     border: 'none',
     color: 'var(--danger)',
     fontSize: '0.9rem',

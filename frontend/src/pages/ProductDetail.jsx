@@ -228,7 +228,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'rgba(21, 34, 25, 0.4)',
+    backgroundColor: 'rgba(21, 34, 25, 0.4)',
     height: '450px',
     borderRadius: '16px',
   },
@@ -356,7 +356,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: '4px',
-    transition: 'background 0.2s ease',
+    transition: 'background-color 0.2s ease',
   },
   counterValue: {
     fontSize: '1.1rem',
@@ -371,7 +371,7 @@ const styles = {
     fontWeight: '700',
   },
   addBtnSuccess: {
-    background: 'var(--success)',
+    backgroundColor: 'var(--success)',
     color: '#000',
     boxShadow: 'var(--shadow-neon)',
   },
