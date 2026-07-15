@@ -22,5 +22,29 @@
     "status": "Paid",
     "trackingNumber": "",
     "createdAt": "2026-07-15T15:17:47.738Z"
+  },
+  {
+    "id": "ord_1784130881131",
+    "userId": "u2",
+    "items": [
+      {
+        "productId": "p_3",
+        "name": "เสื่อโยคะยางพาราธรรมชาติ (Natural Rubber Yoga Mat)",
+        "price": 2450,
+        "quantity": 1,
+        "subtotal": 2450
+      }
+    ],
+    "totalPrice": 2450,
+    "shippingAddress": {
+      "recipientName": "สมถุย",
+      "phone": "123456789",
+      "address": "512",
+      "postalCode": "999"
+    },
+    "paymentMethod": "PromptPay",
+    "status": "Paid",
+    "trackingNumber": "",
+    "createdAt": "2026-07-15T15:54:41.131Z"
   }
 ]
