@@ -41,6 +41,18 @@ export default function Admin() {
     materials: '',
     warranty: ''
   });
+
+  // Add User Modal State
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [userSearch, setUserSearch] = useState('');
+  const [userSubTab, setUserSubTab] = useState('staff'); // 'staff' or 'customer'
+  const [userForm, setUserForm] = useState({
+    username: '',
+    password: '',
+    email: '',
+    name: '',
+    role: 'staff'
+  });
   
   // Performance Test State
   const [perfConcurrent, setPerfConcurrent] = useState(5);
@@ -247,6 +259,68 @@ export default function Admin() {
     }
   };
 
+  // User Actions
+  const handleOpenAddUser = () => {
+    setUserForm({
+      username: '',
+      password: '',
+      email: '',
+      name: '',
+      role: 'staff'
+    });
+    setShowUserModal(true);
+  };
+
+  const handleSaveUser = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('http://localhost:5001/api/admin/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders()
+        },
+        body: JSON.stringify(userForm)
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'ไม่สามารถเพิ่มผู้ใช้งานได้');
+      
+      triggerSuccessMsg(`เพิ่มบัญชีสำหรับ ${data.user.name} เรียบร้อยแล้ว!`);
+      setShowUserModal(false);
+      fetchData();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const handleDeleteUser = async (userToDelete) => {
+    if (userToDelete.id === user.id) {
+      alert('ไม่สามารถลบบัญชีของตนเองได้');
+      return;
+    }
+    if (userToDelete.id === 'u1') {
+      alert('ไม่สามารถลบบัญชีผู้ดูแลระบบหลัก (System Administrator) ได้');
+      return;
+    }
+    if (!window.confirm(`คุณแน่ใจหรือไม่ที่จะลบบัญชีผู้ใช้ของ ${userToDelete.name}?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5001/api/admin/users/${userToDelete.id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'ไม่สามารถลบผู้ใช้งานได้');
+
+      triggerSuccessMsg(`ลบบัญชีผู้ใช้ ${userToDelete.name} เรียบร้อยแล้ว!`);
+      fetchData();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   // Performance QA Benchmarker
   const runPerformanceQA = async () => {
     setPerfRunning(true);
@@ -406,6 +480,19 @@ export default function Admin() {
         >
           🥑 คลังสินค้า ({products.length})
         </button>
+        {user?.role === 'admin' && (
+          <button 
+            onClick={() => setActiveTab('users')} 
+            style={{
+              ...styles.tabBtn,
+              borderBottomColor: activeTab === 'users' ? 'var(--primary-glow)' : 'transparent',
+              color: activeTab === 'users' ? 'var(--primary-glow)' : 'var(--text-secondary)',
+              backgroundColor: activeTab === 'users' ? 'rgba(16, 185, 129, 0.08)' : 'transparent',
+            }}
+          >
+            👥 จัดการพนักงาน ({users.length})
+          </button>
+        )}
         <button 
           onClick={() => setActiveTab('performance')} 
           style={{
@@ -710,6 +797,123 @@ export default function Admin() {
                           <button onClick={() => handleOpenEditProduct(p)} style={styles.btnEdit}>แก้ไข</button>
                           <button onClick={() => handleDeleteProduct(p.id)} style={styles.btnDelete}>ลบ</button>
                         </div>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* TAB: USER/STAFF MANAGEMENT (Admin only) */}
+      {activeTab === 'users' && user?.role === 'admin' && !error && (
+        <div style={styles.tabContent}>
+          {/* Sub Tabs */}
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '0.8rem' }}>
+            <button 
+              onClick={() => { setUserSubTab('staff'); setUserSearch(''); }}
+              style={{
+                backgroundColor: userSubTab === 'staff' ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
+                border: 'none',
+                color: userSubTab === 'staff' ? 'var(--primary-glow)' : 'var(--text-secondary)',
+                padding: '0.5rem 1rem',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: '600',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              💼 พนักงาน & แอดมิน ({users.filter(u => u.role !== 'customer').length})
+            </button>
+            <button 
+              onClick={() => { setUserSubTab('customer'); setUserSearch(''); }}
+              style={{
+                backgroundColor: userSubTab === 'customer' ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
+                border: 'none',
+                color: userSubTab === 'customer' ? 'var(--primary-glow)' : 'var(--text-secondary)',
+                padding: '0.5rem 1rem',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: '600',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              👥 ลูกค้า ({users.filter(u => u.role === 'customer').length})
+            </button>
+          </div>
+
+          <div style={styles.filterSection}>
+            <input 
+              type="text" 
+              placeholder={userSubTab === 'staff' ? "🔍 ค้นหาชื่อพนักงาน, username, หรืออีเมล..." : "🔍 ค้นหาชื่อลูกค้า, username, หรืออีเมล..."}
+              value={userSearch}
+              onChange={(e) => setUserSearch(e.target.value)}
+              style={styles.searchInput}
+            />
+            {userSubTab === 'staff' && (
+              <button onClick={handleOpenAddUser} style={styles.btnAddProduct}>
+                👥 ➕ เพิ่มพนักงานใหม่
+              </button>
+            )}
+          </div>
+
+          <div style={styles.tableWrapper} className="glass-card">
+            <table style={styles.table}>
+              <thead>
+                <tr>
+                  <th style={styles.th}>Username</th>
+                  <th style={styles.th}>ชื่อผู้ใช้งาน</th>
+                  <th style={styles.th}>อีเมล</th>
+                  <th style={styles.th}>บทบาท (Role)</th>
+                  <th style={styles.th}>จัดการ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users
+                  .filter(u => {
+                    const matchesSearch = u.username.toLowerCase().includes(userSearch.toLowerCase()) ||
+                      u.name.toLowerCase().includes(userSearch.toLowerCase()) ||
+                      u.email.toLowerCase().includes(userSearch.toLowerCase());
+                    const matchesSubTab = userSubTab === 'staff' 
+                      ? u.role !== 'customer' 
+                      : u.role === 'customer';
+                    return matchesSearch && matchesSubTab;
+                  })
+                  .map(u => (
+                    <tr key={u.id} style={styles.tr}>
+                      <td style={styles.td}>
+                        <strong style={{ color: 'var(--text-primary)' }}>{u.username}</strong>
+                      </td>
+                      <td style={styles.td}>
+                        <strong>{u.name}</strong>
+                      </td>
+                      <td style={styles.td}>
+                        <span>{u.email}</span>
+                      </td>
+                      <td style={styles.td}>
+                        <span style={{
+                          backgroundColor: u.role === 'admin' ? 'var(--secondary-glow)' : u.role === 'staff' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.08)',
+                          color: u.role === 'admin' ? '#000' : u.role === 'staff' ? 'var(--primary-glow)' : 'var(--text-primary)',
+                          padding: '0.2rem 0.6rem',
+                          borderRadius: '4px',
+                          fontWeight: '700',
+                          fontSize: '0.8rem'
+                        }}>
+                          {u.role.toUpperCase()}
+                        </span>
+                      </td>
+                      <td style={styles.td}>
+                        {u.id !== user?.id && u.id !== 'u1' ? (
+                          <button 
+                            onClick={() => handleDeleteUser(u)} 
+                            style={styles.btnDelete}
+                          >
+                            ลบ
+                          </button>
+                        ) : (
+                          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>-</span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -1033,6 +1237,83 @@ export default function Admin() {
               <div style={styles.modalActions}>
                 <button type="submit" style={styles.btnSave}>บันทึกข้อมูลสินค้า</button>
                 <button type="button" onClick={() => setShowProductModal(false)} style={styles.btnCancel}>ปิดหน้าต่าง</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ADD USER MODAL */}
+      {showUserModal && (
+        <div style={styles.modalOverlay} className="page-fade-in">
+          <div style={styles.modalContent} className="glass-card glow-cyan">
+            <h2 style={{ ...styles.sectionHeading, marginBottom: '1.5rem', color: 'var(--primary-glow)' }}>
+              👥 เพิ่มบัญชีผู้ดูแล / พนักงานใหม่
+            </h2>
+            <form onSubmit={handleSaveUser} style={styles.modalForm}>
+              <div style={styles.formGroup}>
+                <label style={styles.label}>ชื่อผู้ใช้งาน (Username):</label>
+                <input 
+                  type="text" 
+                  required 
+                  value={userForm.username} 
+                  onChange={(e) => setUserForm({ ...userForm, username: e.target.value })}
+                  style={styles.formControl}
+                  placeholder="เช่น somchai_staff"
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>รหัสผ่าน (Password):</label>
+                <input 
+                  type="password" 
+                  required 
+                  value={userForm.password} 
+                  onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
+                  style={styles.formControl}
+                  placeholder="รหัสผ่านขั้นต่ำ 6 ตัว"
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>ชื่อผู้ใช้งานจริง (Full Name):</label>
+                <input 
+                  type="text" 
+                  required 
+                  value={userForm.name} 
+                  onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
+                  style={styles.formControl}
+                  placeholder="เช่น สมชาย ใจดี"
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>อีเมล (Email):</label>
+                <input 
+                  type="email" 
+                  required 
+                  value={userForm.email} 
+                  onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                  style={styles.formControl}
+                  placeholder="เช่น somchai@fitpung.com"
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>บทบาทการใช้งาน (Role):</label>
+                <select 
+                  value={userForm.role} 
+                  onChange={(e) => setUserForm({ ...userForm, role: e.target.value })} 
+                  style={styles.formControl}
+                >
+                  <option value="staff">Staff (พนักงานจัดการหลังร้าน)</option>
+                  <option value="admin">Admin (ผู้ดูแลระบบหลัก)</option>
+                </select>
+              </div>
+
+              <div style={styles.modalActions}>
+                <button type="submit" style={styles.btnSave}>เพิ่มบัญชีผู้ใช้</button>
+                <button type="button" onClick={() => setShowUserModal(false)} style={styles.btnCancel}>ปิดหน้าต่าง</button>
               </div>
             </form>
           </div>
