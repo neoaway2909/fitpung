@@ -39,6 +39,26 @@ export default function Orders() {
     fetchOrders();
   }, [user]);
 
+  const cancelOrder = async (orderId) => {
+    if (!window.confirm('คุณต้องการยกเลิกคำสั่งซื้อนี้ใช่หรือไม่?\n\nหากชำระเงินแล้ว ระบบจะดำเนินการคืนเงินให้ตามช่องทางที่ชำระ (จำลอง)')) return;
+
+    try {
+      const response = await fetch(`http://localhost:5001/api/orders/${orderId}/cancel`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'เกิดข้อผิดพลาดในการยกเลิกคำสั่งซื้อ');
+      }
+      
+      setOrders(orders.map(o => o.id === orderId ? { ...o, status: 'Cancelled' } : o));
+      alert('ยกเลิกคำสั่งซื้อเรียบร้อยแล้ว');
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   if (!user) {
     return (
       <div style={styles.centerContainer} className="page-fade-in">
@@ -131,8 +151,19 @@ export default function Orders() {
                 <span style={styles.orderId}> {order.id}</span>
                 <div style={styles.orderDate}>{formatDate(order.createdAt)}</div>
               </div>
-              <div style={getStatusBadgeStyle(order.status)}>
-                {getStatusText(order.status)}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                <div style={getStatusBadgeStyle(order.status)}>
+                  {getStatusText(order.status)}
+                </div>
+                {(order.status === 'Pending' || order.status === 'Paid') && (
+                  <button 
+                    onClick={() => cancelOrder(order.id)}
+                    style={styles.cancelBtn}
+                    className="cancel-btn-hover"
+                  >
+                    ยกเลิกคำสั่งซื้อ
+                  </button>
+                )}
               </div>
             </div>
 
@@ -186,7 +217,11 @@ export default function Orders() {
                 </div>
                 <div style={styles.totalBlock}>
                   ยอดสั่งซื้อสุทธิ:{' '}
-                  <span style={styles.totalPriceText}>
+                  <span style={{
+                    ...styles.totalPriceText,
+                    textDecoration: order.status === 'Cancelled' ? 'line-through' : 'none',
+                    color: order.status === 'Cancelled' ? 'var(--text-secondary)' : 'var(--secondary-glow)'
+                  }}>
                     {order.totalPrice.toLocaleString()} บาท
                   </span>
                 </div>
@@ -387,5 +422,16 @@ const styles = {
     fontSize: '1.2rem',
     fontWeight: '800',
     marginLeft: '0.5rem',
+  },
+  cancelBtn: {
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    border: '1px solid var(--danger)',
+    color: 'var(--danger)',
+    padding: '0.3rem 0.6rem',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '0.8rem',
+    fontWeight: '600',
+    transition: 'all 0.2s ease',
   },
 };

@@ -285,6 +285,48 @@ app.put('/api/orders/:id/status', (req, res) => {
   res.json({ message: 'อัปเดตสถานะคำสั่งซื้อเรียบร้อยแล้ว', order: orders[orderIndex] });
 });
 
+// Cancel order (Customer)
+app.put('/api/orders/:id/cancel', (req, res) => {
+  const { id } = req.params;
+  const userId = req.headers['x-user-id'];
+
+  if (!userId) {
+    return res.status(401).json({ message: 'กรุณาเข้าสู่ระบบ' });
+  }
+
+  const orders = readData(ORDERS_PATH);
+  const orderIndex = orders.findIndex(o => o.id === id);
+
+  if (orderIndex === -1) {
+    return res.status(404).json({ message: 'ไม่พบคำสั่งซื้อนี้' });
+  }
+
+  if (orders[orderIndex].userId !== userId) {
+    return res.status(403).json({ message: 'คุณไม่มีสิทธิ์ยกเลิกคำสั่งซื้อนี้' });
+  }
+
+  const currentStatus = orders[orderIndex].status;
+  if (currentStatus !== 'Pending' && currentStatus !== 'Paid') {
+    return res.status(400).json({ message: 'ไม่สามารถยกเลิกได้เนื่องจากคำสั่งซื้ออยู่ในขั้นตอนการจัดส่งแล้ว' });
+  }
+
+  // Restore stock
+  const products = readData(PRODUCTS_PATH);
+  for (const item of orders[orderIndex].items) {
+    const product = products.find(p => p.id === item.productId);
+    if (product) {
+      product.stock += item.quantity;
+    }
+  }
+  writeData(PRODUCTS_PATH, products);
+
+  // Update order status
+  orders[orderIndex].status = 'Cancelled';
+  writeData(ORDERS_PATH, orders);
+
+  res.json({ message: 'ยกเลิกคำสั่งซื้อสำเร็จและคืนสต็อกสินค้าเรียบร้อย', order: orders[orderIndex] });
+});
+
 // ================= ADMIN APIs =================
 
 // Get all users (admin/staff only)
