@@ -163,75 +163,276 @@ classDiagram
 ---
 
 ## 4. แผนภาพแสดงการไหลของข้อมูล (Sequence Diagram)
-แสดงขั้นตอนการส่งข้อมูลจากฝั่งลูกค้าผ่านหน้าจอคอมพิวเตอร์หน้าบ้าน (Frontend) ไปประมวลผลเช็คสต็อกที่หลังบ้าน (Backend) และอัปเดตลงฐานข้อมูล (JSON DB)
+แสดงกระบวนการทำงานและการไหลของข้อมูลระหว่างผู้ใช้งาน หน้าบ้าน (Frontend) หลังบ้าน (Backend API) และไฟล์ฐานข้อมูล (JSON DB) ในระบบปัจจุบันทั้งหมด 6 กระบวนการหลัก ดังนี้:
+
+### 4.1 กระบวนการลงทะเบียนและเข้าสู่ระบบ (Authentication Process)
+แสดงขั้นตอนการสมัครสมาชิกและการตรวจสอบสิทธิ์เข้าสู่ระบบของลูกค้า/พนักงาน/ผู้ดูแลระบบ
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor User as 👤 ผู้ใช้งาน
+  participant FE as 🖥️ หน้าบ้าน (Frontend / AuthContext)
+  participant BE as ⚙️ หลังบ้าน (Backend API)
+  participant DB as 💾 ฐานข้อมูล (users.json)
+
+  Note over User, DB: 1. กระบวนการลงทะเบียน (Register)
+  User->>FE: กรอกข้อมูลสมัครสมาชิก (Username, Password, Email, Name)
+  FE->>BE: POST /api/auth/register (ส่ง Request Body)
+  activate BE
+  BE->>DB: อ่านข้อมูลผู้ใช้ทั้งหมดเพื่อตรวจสอบ
+  DB-->>BE: รายชื่อผู้ใช้ที่มีอยู่
+  alt มี Username ซ้ำในระบบ
+    BE-->>FE: ส่งค่า HTTP 400 (ชื่อผู้ใช้นี้ถูกใช้งานแล้ว)
+    FE->>User: แจ้งเตือนข้อผิดพลาดหน้าจอ
+  else ไม่มี Username ซ้ำ (ลงทะเบียนผ่าน)
+    BE->>BE: สร้างออบเจกต์ผู้ใช้ใหม่ (ID อัตโนมัติ, Role เป็น customer)
+    BE->>DB: บันทึกข้อมูลผู้ใช้ใหม่ลงไฟล์
+    DB-->>BE: ยืนยันการบันทึกสำเร็จ
+    BE-->>FE: ส่งค่า HTTP 201 (สมัครสมาชิกสำเร็จ พร้อมข้อมูลผู้ใช้ไม่รวมรหัสผ่าน)
+    FE->>User: แสดงหน้าต่างแจ้งเตือน "สมัครสมาชิกสำเร็จ" และนำทางไปหน้าเข้าสู่ระบบ
+  end
+  deactivate BE
+
+  Note over User, DB: 2. กระบวนการเข้าสู่ระบบ (Login)
+  User->>FE: กรอก Username และ Password
+  FE->>BE: POST /api/auth/login (ส่ง Request Body)
+  activate BE
+  BE->>DB: อ่านข้อมูลผู้ใช้ในระบบทั้งหมด
+  DB-->>BE: รายชื่อผู้ใช้
+  BE->>BE: ตรวจสอบความถูกต้องของ Username และ Password
+  alt ข้อมูลไม่ถูกต้อง
+    BE-->>FE: ส่งค่า HTTP 401 (ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง)
+    FE->>User: แสดงข้อความแจ้งเตือนข้อผิดพลาด
+  else ข้อมูลถูกต้อง
+    BE-->>FE: ส่งค่า HTTP 200 (เข้าสู่ระบบสำเร็จ พร้อมข้อมูลผู้ใช้)
+    FE->>FE: บันทึกข้อมูลและสถานะผู้ใช้ลงใน AuthContext State
+    FE->>User: นำทางไปยังหน้าหลักตามสิทธิ์ (Role)
+  end
+  deactivate BE
+```
+
+### 4.2 กระบวนการสั่งซื้อและชำระเงินจำลอง (Ordering & Simulated Payment Process)
+แสดงขั้นตอนการเลือกสั่งซื้อสินค้า ตรวจสอบสต็อก การหักสต็อก และการจำลองชำระเงินผ่าน PromptPay QR Code
 
 ```mermaid
 sequenceDiagram
   autonumber
   actor Customer as 👤 ลูกค้า
-  participant FE as 🖥️ หน้าบ้าน (Frontend)
-  participant BE as ⚙️ หลังบ้าน (Backend)
-  participant DB as 💾 ฐานข้อมูล (JSON)
-  actor Staff as 📦 พนักงาน
+  participant FE as 🖥️ หน้าบ้าน (Frontend / CartContext)
+  participant BE as ⚙️ หลังบ้าน (Backend API)
+  participant DB as 💾 ฐานข้อมูล (JSON Files)
 
-  Note over Customer, DB: 1. กระบวนการสั่งซื้อและชำระเงิน (Customer)
-  Customer->>FE: คลิก "ดำเนินการสั่งซื้อ" ในหน้าตะกร้า
-  FE->>Customer: แสดง Modal ให้กรอกข้อมูลจัดส่งและเลือกการชำระเงิน
-  Customer->>FE: กรอกข้อมูลและคลิก "ยืนยันสั่งซื้อ"
-  FE->>BE: POST /api/orders (ส่งข้อมูลตะกร้าและที่อยู่)
+  Note over Customer, DB: 1. ตรวจสอบสต็อกและสร้างคำสั่งซื้อ (Create Order)
+  Customer->>FE: คลิก "ดำเนินการสั่งซื้อ" และยืนยันข้อมูลที่อยู่
+  FE->>BE: POST /api/orders (ส่งรายการสินค้า, ที่อยู่, ราคารวม และ Header x-user-id)
   activate BE
-  BE->>DB: อ่านไฟล์ products.json เพื่อตรวจสอบสต็อก
-  DB-->>BE: ส่งกลับข้อมูลจำนวนสต็อก
+  BE->>DB: อ่านไฟล์ products.json เพื่อตรวจสอบจำนวนสต็อก
+  DB-->>BE: ข้อมูลสต็อกสินค้า
   
-  alt สต็อกเพียงพอ
-    BE->>DB: หักสต็อกตามที่สั่ง และบันทึกลง products.json
-    BE->>DB: สร้างออเดอร์ใหม่สถานะ "Pending" ลง orders.json
-    DB-->>BE: ยืนยันการบันทึกสำเร็จ
-    BE-->>FE: ส่งค่า HTTP 201 (Created)
-    FE->>Customer: แสดงหน้าจอจำลองการสแกนจ่ายเงิน (QR Code PromptPay)
-    
-    Customer->>FE: คลิกปุ่ม "ชำระเงินสำเร็จ (Simulate Payment)"
-    FE->>BE: POST /api/orders/:id/pay
-    BE->>DB: อัปเดตสถานะออเดอร์เป็น "Paid" ใน orders.json
+  alt สต็อกสินค้าไม่พอ (บางรายการ)
+    BE-->>FE: ส่งค่า HTTP 400 (สินค้ามีจำนวนสต็อกไม่เพียงพอ)
+    FE->>Customer: แสดงข้อความแจ้งเตือนสต็อกไม่พอ
+  else สต็อกสินค้าเพียงพอทั้งหมด
+    BE->>BE: คำนวณหักสต็อกของแต่ละสินค้าที่สั่งซื้อ
+    BE->>DB: บันทึกสต็อกสินค้าที่อัปเดตลง products.json
+    BE->>BE: สร้างคำสั่งซื้อใหม่ (ID อัตโนมัติ, สถานะ = "Pending")
+    BE->>DB: เพิ่มข้อมูลคำสั่งซื้อใหม่ลง orders.json
     DB-->>BE: ยืนยันบันทึกสำเร็จ
-    BE-->>FE: ส่งค่า HTTP 200 OK (ชำระเงินเสร็จสิ้น)
-    FE-->>FE: เคลียร์สินค้าในตะกร้าหน้าบ้าน (clearCart)
-    FE->>Customer: แสดงป๊อปอัป "สั่งซื้อสำเร็จ" และพากลับหน้าประวัติสั่งซื้อ
-    deactivate BE
-
-    Note over FE, Staff: 2. กระบวนการจัดการคำสั่งซื้อ (Staff)
-    Staff->>FE: เข้าสู่ระบบและเปิดหน้า "จัดการออเดอร์" (Admin Dashboard)
-    FE->>BE: GET /api/orders
-    activate BE
-    BE->>DB: อ่านไฟล์ orders.json
-    DB-->>BE: คืนค่ารายการคำสั่งซื้อทั้งหมด
-    BE-->>FE: แสดงรายการออเดอร์ที่เพิ่งชำระเงิน (Paid)
-    deactivate BE
-    
-    Staff->>FE: ตรวจสอบยอดเงิน และเปลี่ยนสถานะเป็น "Shipped" พร้อมใส่เลขพัสดุ
-    FE->>BE: PUT /api/orders/:id/status (status="Shipped")
-    activate BE
-    BE->>DB: อัปเดตสถานะและเลข Tracking ลง orders.json
-    DB-->>BE: ยืนยันบันทึกสำเร็จ
-    BE-->>FE: ส่งค่า HTTP 200 OK
-    deactivate BE
-    
-    Note over Customer, BE: 3. การตรวจสอบสถานะการจัดส่ง (Customer)
-    Customer->>FE: เปิดหน้า "คำสั่งซื้อของฉัน" (My Orders)
-    FE->>BE: GET /api/orders (ค้นหาด้วย userId)
-    activate BE
-    BE->>DB: ค้นหาข้อมูลออเดอร์ของลูกค้ารายนี้
-    DB-->>BE: คืนค่ารายการออเดอร์ล่าสุด
-    BE-->>FE: ส่งค่า HTTP 200 OK
-    FE->>Customer: แสดงสถานะเป็น "กำลังจัดส่ง" พร้อมเลขพัสดุ (Tracking Number)
-    deactivate BE
-
-  else สต็อกไม่เพียงพอ
-    activate BE
-    BE-->>FE: ส่งค่า HTTP 400 (แจ้งข้อผิดพลาดสต็อกไม่พอ)
-    deactivate BE
-    FE->>Customer: แสดงกล่องแจ้งเตือน "สินค้าบางรายการมีจำนวนไม่เพียงพอ"
+    BE-->>FE: ส่งค่า HTTP 201 (สร้างคำสั่งซื้อสำเร็จและรอชำระเงิน)
+    FE->>Customer: แสดงหน้าจอ PromptPay QR Code จำลองการชำระเงิน
   end
+  deactivate BE
+
+  Note over Customer, DB: 2. จำลองการชำระเงิน (Simulate Payment)
+  Customer->>FE: คลิกปุ่ม "ชำระเงินสำเร็จ (Simulate Payment)"
+  FE->>BE: POST /api/orders/:id/pay
+  activate BE
+  BE->>DB: อ่านไฟล์ orders.json ค้นหาคำสั่งซื้อตาม ID
+  BE->>BE: เปลี่ยนสถานะคำสั่งซื้อเป็น "Paid"
+  BE->>DB: บันทึกการอัปเดตลง orders.json
+  DB-->>BE: ยืนยันบันทึกสำเร็จ
+  BE-->>FE: ส่งค่า HTTP 200 (จำลองชำระเงินสำเร็จ)
+  deactivate BE
+  FE->>FE: เรียกใช้ clearCart() เพื่อเคลียร์ตะกร้าในหน้าบ้าน
+  FE->>Customer: แสดงป๊อปอัป "สั่งซื้อสำเร็จ" และพากลับหน้าประวัติสั่งซื้อ
+```
+
+### 4.3 กระบวนการยกเลิกคำสั่งซื้อและการคืนคลังสินค้า (Order Cancellation & Inventory Restoration)
+แสดงขั้นตอนที่ลูกค้ากดยกเลิกคำสั่งซื้อ โดยระบบต้องปรับสถานะเป็น Cancelled และคืนสินค้ากลับคลัง
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor Customer as 👤 ลูกค้า
+  participant FE as 🖥️ หน้าบ้าน (Frontend / Orders Page)
+  participant BE as ⚙️ หลังบ้าน (Backend API)
+  participant DB as 💾 ฐานข้อมูล (JSON Files)
+
+  Customer->>FE: คลิกปุ่ม "ยกเลิกคำสั่งซื้อ" (สำหรับสถานะ Pending หรือ Paid)
+  FE->>BE: PUT /api/orders/:id/cancel (พร้อม Header x-user-id)
+  activate BE
+  BE->>DB: อ่านไฟล์ orders.json ค้นหาออเดอร์ตาม ID
+  DB-->>BE: ข้อมูลคำสั่งซื้อ
+  
+  alt ไม่พบออเดอร์ หรือ สิทธิ์ไม่ถูกต้อง หรือ สถานะไม่ใช่ Pending/Paid
+    BE-->>FE: ส่งค่า HTTP 400/403/404 (ไม่สามารถยกเลิกคำสั่งซื้อได้)
+    FE->>Customer: แสดงข้อความแจ้งเตือนข้อผิดพลาด
+  else สามารถยกเลิกได้
+    BE->>DB: อ่านไฟล์ products.json
+    BE->>BE: คำนวณสต็อกบวกคืนให้สินค้าทุกรายการในออเดอร์
+    BE->>DB: บันทึกข้อมูลสต็อกสินค้าที่เพิ่มกลับลง products.json
+    BE->>BE: เปลี่ยนสถานะคำสั่งซื้อเป็น "Cancelled"
+    BE->>DB: บันทึกสถานะคำสั่งซื้อที่ยกเลิกลง orders.json
+    DB-->>BE: ยืนยันบันทึกสำเร็จ
+    BE-->>FE: ส่งค่า HTTP 200 (ยกเลิกสำเร็จและคืนสต็อกเรียบร้อย)
+    FE->>FE: อัปเดตรายการคำสั่งซื้อบน UI (สถานะเปลี่ยนเป็น Cancelled)
+    FE->>Customer: แสดงป๊อปอัปแจ้งผลการยกเลิกสำเร็จ
+  end
+  deactivate BE
+```
+
+### 4.4 กระบวนการจัดการคำสั่งซื้อและจัดส่งโดยพนักงาน (Order Management & Fulfillment Process)
+แสดงขั้นตอนที่พนักงานหรือแอดมินเข้ามาดูรายการสั่งซื้อ ตรวจสอบ และอัปเดตสถานะการจัดส่งพร้อมหมายเลขพัสดุ (Tracking Number)
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor Staff as 📦 พนักงาน / แอดมิน
+  participant FE as 🖥️ หน้าบ้าน (Admin Dashboard)
+  participant BE as ⚙️ หลังบ้าน (Backend API)
+  participant DB as 💾 ฐานข้อมูล (orders.json)
+
+  Note over Staff, DB: 1. การดึงรายการคำสั่งซื้อทั้งหมด (Fetch Orders)
+  Staff->>FE: เปิดแท็บ "จัดการออเดอร์" (Order Management)
+  FE->>BE: GET /api/orders (พร้อม Header x-user-role และ x-user-id)
+  activate BE
+  BE->>BE: ตรวจสอบบทบาทผู้ใช้งาน (Role-Based Access Control)
+  alt ผู้ใช้เป็นพนักงาน (Staff) หรือ แอดมิน (Admin)
+    BE->>DB: อ่านไฟล์ orders.json ทั้งหมด
+    DB-->>BE: รายการคำสั่งซื้อทั้งหมดของร้านค้า
+    BE-->>FE: ส่งค่า HTTP 200 (ส่งรายการคำสั่งซื้อทั้งหมดกลับ)
+    FE->>Staff: แสดงผลตารางรายการคำสั่งซื้อทั้งหมดบนแผงควบคุม
+  else ผู้ใช้ทั่วไป
+    BE-->>FE: ส่งค่า HTTP 401 (ไม่มีสิทธิ์เข้าถึง)
+  end
+  deactivate BE
+
+  Note over Staff, DB: 2. การอัปเดตสถานะจัดส่งและหมายเลขพัสดุ (Fulfillment)
+  Staff->>FE: เลือกออเดอร์ เปลี่ยนสถานะเป็น "Shipped" และกรอกเลขพัสดุ
+  FE->>BE: PUT /api/orders/:id/status (ส่ง status และ trackingNumber พร้อม Header x-user-role)
+  activate BE
+  BE->>BE: ตรวจสอบสิทธิ์ผู้แก้ (ต้องเป็น admin/staff)
+  alt สิทธิ์ไม่เพียงพอ
+    BE-->>FE: ส่งค่า HTTP 403 (ไม่มีสิทธิ์จัดสถานะ)
+    FE->>Staff: แสดงกล่องข้อความเตือนไม่มีสิทธิ์
+  else มีสิทธิ์ถูกต้อง
+    BE->>DB: อ่านไฟล์ orders.json ค้นหาออเดอร์ตาม ID
+    BE->>BE: อัปเดตฟิลด์ status = "Shipped" และใส่ trackingNumber
+    BE->>DB: บันทึกข้อมูลลง orders.json
+    DB-->>BE: ยืนยันบันทึกสำเร็จ
+    BE-->>FE: ส่งค่า HTTP 200 (อัปเดตสถานะจัดส่งเรียบร้อย)
+    FE->>Staff: แสดงป๊อปอัป "อัปเดตสำเร็จ" และรีเฟรชข้อมูลในตาราง
+  end
+  deactivate BE
+```
+
+### 4.5 กระบวนการจัดการสินค้าและสต็อกหลังร้าน (Product Inventory CRUD Operations)
+แสดงขั้นตอนที่ผู้ดูแลระบบ/พนักงานทำรายการเพิ่ม แก้ไขข้อมูล/ปรับสต็อก และลบสินค้าออกจากระบบ
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor Staff as 📦 พนักงาน / แอดมิน
+  participant FE as 🖥️ หน้าบ้าน (Inventory Control)
+  participant BE as ⚙️ หลังบ้าน (Backend API)
+  participant DB as 💾 ฐานข้อมูล (products.json)
+
+  Note over Staff, DB: 1. การเพิ่มสินค้าใหม่ (Add Product)
+  Staff->>FE: กรอกข้อมูลสินค้าและกดปุ่ม "เพิ่มสินค้า"
+  FE->>BE: POST /api/products (ส่ง Request Body และ Header x-user-role)
+  activate BE
+  BE->>BE: ตรวจสอบสิทธิ์ (admin/staff)
+  alt สิทธิ์ถูกต้อง
+    BE->>DB: อ่านไฟล์ products.json
+    BE->>BE: สร้างไอดีสินค้าใหม่ (p_timestamp) และเพิ่มข้อมูล
+    BE->>DB: บันทึกข้อมูลสินค้าใหม่ลง products.json
+    DB-->>BE: ยืนยันบันทึกสำเร็จ
+    BE-->>FE: ส่งค่า HTTP 201 (เพิ่มสินค้าสำเร็จ พร้อมข้อมูลสินค้าที่สร้าง)
+    FE->>Staff: ป๊อปอัปแจ้งความสำเร็จ และเพิ่มแถวข้อมูลในตาราง
+  else ไม่มีสิทธิ์
+    BE-->>FE: ส่งค่า HTTP 403 (ไม่มีสิทธิ์การเข้าถึง)
+  end
+  deactivate BE
+
+  Note over Staff, DB: 2. การแก้ไขรายละเอียด / สต็อกสินค้า (Edit Product / Adjust Stock)
+  Staff->>FE: คลิกปรับสต็อกสินค้า (+1/-1) หรือกรอกฟอร์มแก้ไขข้อมูลสินค้า
+  FE->>BE: PUT /api/products/:id (ส่งฟิลด์ที่ต้องการแก้ไข และ Header x-user-role)
+  activate BE
+  BE->>BE: ตรวจสอบสิทธิ์ (admin/staff)
+  alt สิทธิ์ถูกต้อง
+    BE->>DB: อ่านไฟล์ products.json ค้นหาตาม ID
+    BE->>BE: อัปเดตเฉพาะฟิลด์ที่มีการเปลี่ยนแปลง (เช่น stock, price)
+    BE->>DB: บันทึกทับไฟล์ products.json
+    DB-->>BE: ยืนยันบันทึกสำเร็จ
+    BE-->>FE: ส่งค่า HTTP 200 (แก้ไขสินค้าสำเร็จ)
+    FE->>Staff: แสดงอัปเดตข้อมูลบนหน้าจอทันที
+  else ไม่มีสิทธิ์
+    BE-->>FE: ส่งค่า HTTP 403
+  end
+  deactivate BE
+
+  Note over Staff, DB: 3. การลบสินค้า (Delete Product)
+  Staff->>FE: กดปุ่ม "ลบสินค้า" ในตาราง
+  FE->>BE: DELETE /api/products/:id (ส่ง Header x-user-role)
+  activate BE
+  BE->>BE: ตรวจสอบสิทธิ์ (admin/staff)
+  alt สิทธิ์ถูกต้อง
+    BE->>DB: อ่านไฟล์ products.json
+    BE->>BE: ลบออบเจกต์สินค้าออกจากอาเรย์รายการสินค้า
+    BE->>DB: บันทึกทับไฟล์ products.json
+    DB-->>BE: ยืนยันบันทึกสำเร็จ
+    BE-->>FE: ส่งค่า HTTP 200 (ลบสินค้าสำเร็จ)
+    FE->>Staff: ลบแถวข้อมูลสินค้าดังกล่าวออกจากหน้าจอคลัง
+  else ไม่มีสิทธิ์
+    BE-->>FE: ส่งค่า HTTP 403
+  end
+  deactivate BE
+```
+
+### 4.6 กระบวนการทดสอบประสิทธิภาพ API (Performance QA Tester)
+แสดงขั้นตอนการทำงานของโมดูลจำลองการโหลด API (API Load Tester) ที่ยิง Request แบบขนานเพื่อตรวจวัดความหน่วงของเซิร์ฟเวอร์หลังบ้าน
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor Admin as 👤 ผู้ดูแลระบบ
+  participant FE as 🖥️ หน้าบ้าน (Performance QA Tool)
+  participant BE as ⚙️ หลังบ้าน (Backend API)
+  participant Cache as 🧠 หน่วยความจำหลังบ้าน (Node.js/OS I/O)
+
+  Admin->>FE: เลือกเส้นทาง API (เช่น GET /api/products), ตั้งค่า Concurrency (5) และจำนวนครั้ง (50)
+  Admin->>FE: คลิก "เริ่มต้นการทดสอบประสิทธิภาพ (Run Test)"
+  FE->>FE: เริ่มต้นจับเวลาการทดสอบ และสร้าง Asynchronous Workers 5 ตัวพร้อมกัน
+  
+  par ข้อมูลถูกยิงแบบขนานและเป็นจังหวะตามจำนวนรอบ (Concurrently)
+    FE->>BE: GET /api/products (Request 1)
+    FE->>BE: GET /api/products (Request 2)
+    FE->>BE: GET /api/products (Request 3)
+    FE->>BE: GET /api/products (Request 4)
+    FE->>BE: GET /api/products (Request 5)
+  and การตอบรับอย่างรวดเร็วจากเซิร์ฟเวอร์
+    activate BE
+    BE->>Cache: ค้นหาข้อมูลสินค้าจากแคชหน่วยความจำ
+    Cache-->>BE: รายการข้อมูลผลิตภัณฑ์
+    BE-->>FE: HTTP 200 OK (Response 1, 2, 3, 4, 5...)
+    deactivate BE
+  end
+  
+  FE->>FE: บันทึก Latency แต่ละ Request และนับรอบจนครบ 50 ครั้ง
+  FE->>FE: คำนวณสรุปผลการวัดค่า: RPS, ค่าเฉลี่ยความหน่วง (Avg Latency), อัตราสำเร็จ (%)
+  FE->>FE: วาดเส้นกราฟ SVG Latency Timeline และสร้างตารางแสดงผลเชิงสถิติ
+  FE->>Admin: แสดงแผนภูมิกราฟประสิทธิภาพแบบไดนามิก และข้อมูลผลการทดสอบให้แอดมินตรวจสอบ
 ```
 
 ---
