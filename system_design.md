@@ -61,7 +61,7 @@ classDiagram
   Product "1" *-- "1" ProductSpecs : "has details"
   AuthContext "1" --> "1" User : "manages state of"
   CartContext "1" --> "many" OrderItem : "calculates state of"
-  APIServer --> User : "CRUD /auth"
+  APIServer --> User : "CRUD /auth & /admin/users"
   APIServer --> Product : "CRUD /products"
   APIServer --> Order : "CRUD /orders"
 
@@ -72,7 +72,6 @@ classDiagram
     +String email
     +String role
     +String name
-    +DateTime createdAt
     +register(username, password, email, name) Object
     +login(username, password) Object
     +logout() void
@@ -91,10 +90,10 @@ classDiagram
   }
 
   class ProductSpecs {
-    +String แหล่งที่ปลูก/ผู้ผลิต
-    +String น้ำหนักสุทธิ
-    +String สารอาหารสำคัญ/วัสดุ
-    +String อายุการเก็บรักษา/การรับรอง
+    +String manufacturer
+    +String weight
+    +String materials
+    +String warranty
   }
 
   class Order {
@@ -106,7 +105,7 @@ classDiagram
     +String paymentMethod
     +String status
     +String trackingNumber
-    +DateTime createdAt
+    +String createdAt
     +createOrder(userId, items, address, payment) Object
     +updateStatus(status, trackingNo) Object
     +payOrder() Object
@@ -132,31 +131,39 @@ classDiagram
     +User user
     +boolean loading
     +String error
+    +boolean isAdmin
     +login(username, password) void
     +register(username, password, email, name) void
     +logout() void
     +getAuthHeaders() Object
+    +setError(error) void
   }
 
   class CartContext {
     +List~OrderItem~ cart
     +int cartCount
     +double cartTotal
+    +List~String~ cartWarnings
+    +boolean loadingSync
     +addToCart(product, qty) void
     +updateQuantity(productId, newQty) void
     +removeFromCart(productId) void
     +clearCart() void
+    +validateAndSyncCart(showNotifications) void
   }
 
   class APIServer {
     +ExpressApp app
     +int PORT
+    +String USERS_PATH
+    +String PRODUCTS_PATH
+    +String ORDERS_PATH
     +readData(filePath) List
     +writeData(filePath, data) boolean
-    +handleAuth()
-    +handleProducts()
-    +handleOrders()
-    +handleAdminDashboard()
+    +handleAuthRoutes() void
+    +handleProductRoutes() void
+    +handleOrderRoutes() void
+    +handleAdminRoutes() void
   }
 ```
 
