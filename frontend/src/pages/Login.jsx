@@ -44,20 +44,7 @@ const Login = ({ onLoginSuccess }) => {
     }
   };
 
-  const handleQuickFill = (role) => {
-    setError(null);
-    if (role === 'admin') {
-      setUsername('admin');
-      setPassword('admin123');
-    } else if (role === 'staff') {
-      setUsername('staff');
-      setPassword('staff123');
-    } else {
-      setUsername('customer');
-      setPassword('customer123');
-    }
-    setIsLoginTab(true);
-  };
+
 
   return (
     <div className="page-fade-in container" style={styles.container}>
@@ -144,21 +131,7 @@ const Login = ({ onLoginSuccess }) => {
           </button>
         </form>
 
-        {/* Quick Login Section for Developer Evaluation */}
-        <div style={styles.quickLoginSection}>
-          <h4 style={styles.quickTitle}>เข้าสู่ระบบด่วนเพื่อตรวจสอบระบบ (Quick Access)</h4>
-          <div style={styles.quickBtnRow}>
-            <button type="button" style={styles.quickBtnAdmin} onClick={() => handleQuickFill('admin')}>
-              👤 แอดมิน (Admin)
-            </button>
-            <button type="button" style={{ ...styles.quickBtnAdmin, backgroundColor: 'rgba(16, 185, 129, 0.1)', border: '1px solid var(--primary-glow)', color: '#D1FAE5' }} onClick={() => handleQuickFill('staff')}>
-              📦 พนักงาน (Staff)
-            </button>
-            <button type="button" style={styles.quickBtnCustomer} onClick={() => handleQuickFill('customer')}>
-              👥 ลูกค้า (Customer)
-            </button>
-          </div>
-        </div>
+
       </div>
     </div>
   );
@@ -169,16 +142,17 @@ const styles = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: '4rem 0',
+    padding: '6rem 0',
+    minHeight: '65vh',
   },
   loginCard: {
     width: '100%',
-    maxWidth: '430px',
-    padding: '2rem 2rem',
+    maxWidth: '600px',
+    padding: '3.5rem 3rem',
   },
   tabs: {
     display: 'flex',
-    marginBottom: '2rem',
+    marginBottom: '2.5rem',
     borderBottom: '1px solid var(--border-color)',
   },
   tab: {
@@ -190,10 +164,10 @@ const styles = {
     borderBottom: '2px solid transparent',
     color: 'var(--text-secondary)',
     fontFamily: 'var(--font-title)',
-    fontSize: '1.05rem',
+    fontSize: '1.15rem',
     fontWeight: '600',
     cursor: 'pointer',
-    paddingBottom: '0.8rem',
+    paddingBottom: '1rem',
     transition: 'all 0.2s',
     whiteSpace: 'nowrap',
     textAlign: 'center',
@@ -207,11 +181,11 @@ const styles = {
     borderBottom: '2px solid var(--primary-glow)',
     color: 'var(--primary-glow)',
     fontFamily: 'var(--font-title)',
-    fontSize: '1.05rem',
+    fontSize: '1.15rem',
     fontWeight: '700',
     cursor: 'pointer',
-    paddingBottom: '0.8rem',
-    textShadow: '0 0 5px var(--primary-glow)',
+    paddingBottom: '1rem',
+    textShadow: '0 0 8px var(--primary-glow)',
     whiteSpace: 'nowrap',
     textAlign: 'center',
   },
@@ -219,23 +193,23 @@ const styles = {
     backgroundColor: 'rgba(239, 68, 68, 0.1)',
     border: '1px solid var(--danger)',
     color: '#FCA5A5',
-    borderRadius: '6px',
-    padding: '0.8rem',
-    fontSize: '0.85rem',
+    borderRadius: '8px',
+    padding: '1rem',
+    fontSize: '0.9rem',
     marginBottom: '1.5rem',
   },
   form: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '1.2rem',
+    gap: '1.5rem',
   },
   inputGroup: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '0.4rem',
+    gap: '0.5rem',
   },
   label: {
-    fontSize: '0.85rem',
+    fontSize: '0.9rem',
     color: 'var(--text-secondary)',
     fontWeight: '600',
   },
@@ -244,8 +218,8 @@ const styles = {
     border: '1px solid var(--border-color)',
     borderRadius: '8px',
     color: '#FFF',
-    padding: '0.75rem',
-    fontSize: '0.9rem',
+    padding: '0.9rem 1rem',
+    fontSize: '0.95rem',
     outline: 'none',
     transition: 'border-color 0.2s ease',
     ':focus': {
@@ -254,58 +228,13 @@ const styles = {
   },
   submitBtn: {
     width: '100%',
-    padding: '0.8rem',
-    fontSize: '1rem',
-    marginTop: '0.5rem',
-  },
-  quickLoginSection: {
-    marginTop: '2.5rem',
-    paddingTop: '1.5rem',
-    borderTop: '1px dashed var(--border-color)',
-    textAlign: 'center',
-  },
-  quickTitle: {
-    fontFamily: 'var(--font-title)',
-    fontSize: '0.8rem',
-    color: 'var(--text-secondary)',
-    marginBottom: '0.8rem',
-  },
-  quickBtnRow: {
-    display: 'flex',
-    gap: '0.8rem',
-  },
-  quickBtnAdmin: {
-    flex: 1,
-    backgroundColor: 'rgba(189, 0, 255, 0.1)',
-    border: '1px solid var(--secondary-glow)',
-    color: '#E9D5FF',
-    padding: '0.5rem',
-    borderRadius: '6px',
+    padding: '1.1rem',
+    fontSize: '1.25rem',
+    fontWeight: '700',
+    marginTop: '0.8rem',
     cursor: 'pointer',
-    fontSize: '0.8rem',
-    fontWeight: '600',
-    fontFamily: 'var(--font-title)',
-    transition: 'all 0.2s',
-    ':hover': {
-      backgroundColor: 'rgba(189, 0, 255, 0.2)',
-    }
+    letterSpacing: '0.05em',
   },
-  quickBtnCustomer: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 245, 255, 0.1)',
-    border: '1px solid var(--primary-glow)',
-    color: '#E0F2FE',
-    padding: '0.5rem',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontSize: '0.8rem',
-    fontWeight: '600',
-    fontFamily: 'var(--font-title)',
-    transition: 'all 0.2s',
-    ':hover': {
-      backgroundColor: 'rgba(0, 245, 255, 0.2)',
-    }
-  }
 };
 
 export default Login;
