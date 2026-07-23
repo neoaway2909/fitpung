@@ -30,6 +30,84 @@
 
 ---
 
+## สถาปัตยกรรมระบบ (System Architecture)
+สถาปัตยกรรมโดยรวมของระบบ **fitpung** พัฒนาขึ้นภายใต้โครงสร้างการเชื่อมต่อแบบ Client-Server แยกแยะส่วนหน้าบ้าน หลังบ้าน และฐานข้อมูลอย่างเป็นระบบเพื่อการขยายขีดความสามารถและความปลอดภัยในการรักษาข้อมูล:
+
+```mermaid
+flowchart TD
+    %% Styling definitions
+    classDef client fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1;
+    classDef server fill:#efebe9,stroke:#4e342e,stroke-width:2px,color:#3e2723;
+    classDef database fill:#efe8e0,stroke:#8d6e63,stroke-width:2px,color:#5d4037;
+
+    subgraph Client ["🖥️ Client Side (Frontend - React / Vite)"]
+        UI["🎨 UI Views (Home, Cart, Orders, Admin, Login)"]
+        Context["🔄 State Management (React Context)"]
+        AuthContext["🔐 AuthContext (User State & Role)"]
+        CartContext["🛒 CartContext (Cart State & Sync)"]
+        LocalStorage[("💾 Local Storage<br/>(Session & Cart)")]
+        
+        UI <--> Context
+        Context --> AuthContext
+        Context --> CartContext
+        Context <--> LocalStorage
+    end
+
+    subgraph Server ["⚙️ Backend API Server (Node.js / Express)"]
+        ExpressApp["🚀 Express App Container"]
+        Middleware["🛡️ Middlewares (CORS, Express JSON, Role Guard)"]
+        
+        subgraph Endpoints ["APIs Endpoints"]
+            AuthAPI["🔑 Auth APIs (/api/auth)"]
+            ProductAPI["🍎 Product APIs (/api/products)"]
+            OrderAPI["📦 Order APIs (/api/orders)"]
+            AdminAPI["👤 Admin APIs (/api/admin)"]
+        end
+        
+        ExpressApp --> Middleware
+        Middleware --> Endpoints
+    end
+
+    subgraph DB ["💾 File System Database (JSON Files)"]
+        UserDB[("users.json")]
+        ProductDB[("products.json")]
+        OrderDB[("orders.json")]
+    end
+
+    %% Communications
+    AuthContext -- "HTTP POST / login / register" --> AuthAPI
+    CartContext -- "HTTP POST/GET/PUT" --> OrderAPI
+    UI -- "HTTP GET" --> ProductAPI
+    UI -- "HTTP CRUD (Headers: x-user-role, x-user-id)" --> AdminAPI
+    
+    AuthAPI <--> UserDB
+    ProductAPI <--> ProductDB
+    OrderAPI <--> OrderDB
+    AdminAPI <--> UserDB & ProductDB & OrderDB
+
+    class UI,Context,AuthContext,CartContext,LocalStorage client;
+    class ExpressApp,Middleware,AuthAPI,ProductAPI,OrderAPI,AdminAPI server;
+    class UserDB,ProductDB,OrderDB database;
+```
+
+### รายละเอียดส่วนประกอบของระบบ (System Component Details)
+
+1. **ส่วนหน้าบ้าน (Client-Side Frontend):**
+   - พัฒนาขึ้นโดยใช้เฟรมเวิร์ก **React** ร่วมกับเครื่องมือคอมไพล์ **Vite** สำหรับการประมวลผลที่รวดเร็วและการแสดงผลที่ลื่นไหล
+   - **State Management (Context API):** ประกอบด้วย `AuthContext` เพื่อจัดการการระบุตัวตนและสิทธิ์การเข้าถึงของผู้ใช้ (Role-Based Access Control) และ `CartContext` เพื่อดูแลรายการตะกร้าสินค้า ปรับปรุงราคารวม และฟังก์ชันตรวจสอบ/ปรับปรุงข้อมูลสินค้ากับเซิร์ฟเวอร์แบบ Real-time
+   - **Persistence Layer:** นำเบราว์เซอร์ **Local Storage** มาใช้เพื่อจดจำสถานะการล็อกอินเซสชันของผู้ใช้ และเก็บข้อมูลในตะกร้าชั่วคราวเพื่ออำนวยความสะดวกไม่ให้ข้อมูลหายเมื่อผู้ใช้รีเฟรชหน้าเว็บ
+
+2. **ส่วนหลังบ้าน (Backend API Server):**
+   - ขับเคลื่อนด้วยโปรแกรม **Node.js** ร่วมกับเฟรมเวิร์ก **Express.js** ในการรับส่งคำขอและเชื่อมโยง API
+   - **Middleware Layer:** ใช้ CORS ในการควบคุมสิทธิ์การเรียกใช้งานข้ามโดเมน, Express.js JSON middleware ในการแปลงเนื้อหาของ requests/responses, และตัวควบคุมสิทธิ์ (Role Guard) เพื่อปกป้อง API สำหรับพนักงานและแอดมินโดยเฉพาะ
+   - **Authentication Headers:** คอยคัดกรองคำขอสำคัญผ่าน HTTP Headers ได้แก่ `x-user-id` และ `x-user-role` ในการอนุญาตดำเนินการในแต่ละ API Endpoint
+
+3. **ส่วนฐานข้อมูลไฟล์ (File System JSON Database):**
+   - ประมวลผลเก็บข้อมูลแบบน้ำหนักเบาผ่านดิสก์ลงในรูปแบบ **JSON Files** (`users.json`, `products.json`, `orders.json`)
+   - หลังบ้านจะอ่านและอัปเดตไฟล์โดยตรงผ่าน Node.js File System (`fs` module) พร้อมระบบแคชข้อมูลบางส่วนในหน่วยความจำของเซิร์ฟเวอร์เพื่อความรวดเร็วและรองรับคำขอขนานได้อย่างมีประสิทธิภาพ
+
+---
+
 ## 1. บทบาทและความสำคัญของแผนภาพต่อการพัฒนาระบบ
 ในการสร้างซอฟต์แวร์ การใช้แผนภาพต่างมุมมองช่วยให้ผู้พัฒนาระบบทำงานได้อย่างเป็นระบบและลดความผิดพลาด ดังนี้:
 
