@@ -30,6 +30,8 @@
 
 ---
 
+
+
 ## สถาปัตยกรรมระบบ (System Architecture)
 สถาปัตยกรรมโดยรวมของระบบ **fitpung** พัฒนาขึ้นภายใต้โครงสร้างการเชื่อมต่อแบบ Client-Server แยกแยะส่วนหน้าบ้าน หลังบ้าน และฐานข้อมูลอย่างเป็นระบบเพื่อการขยายขีดความสามารถและความปลอดภัยในการรักษาข้อมูล:
 
@@ -40,12 +42,12 @@ flowchart TD
     classDef server fill:#efebe9,stroke:#4e342e,stroke-width:2px,color:#3e2723;
     classDef database fill:#efe8e0,stroke:#8d6e63,stroke-width:2px,color:#5d4037;
 
-    subgraph Client ["🖥️ Client Side (Frontend - React / Vite)"]
-        UI["🎨 UI Views (Home, Cart, Orders, Admin, Login)"]
-        Context["🔄 State Management (React Context)"]
-        AuthContext["🔐 AuthContext (User State & Role)"]
-        CartContext["🛒 CartContext (Cart State & Sync)"]
-        LocalStorage[("💾 Local Storage<br/>(Session & Cart)")]
+    subgraph Client ["Client Side (Frontend - React / Vite)"]
+        UI["UI Views (Home, Cart, Orders, Admin, Login)"]
+        Context["State Management (React Context)"]
+        AuthContext["AuthContext (User State & Role)"]
+        CartContext["CartContext (Cart State & Sync)"]
+        LocalStorage[("Local Storage<br/>(Session & Cart)")]
         
         UI <--> Context
         Context --> AuthContext
@@ -53,22 +55,22 @@ flowchart TD
         Context <--> LocalStorage
     end
 
-    subgraph Server ["⚙️ Backend API Server (Node.js / Express)"]
-        ExpressApp["🚀 Express App Container"]
-        Middleware["🛡️ Middlewares (CORS, Express JSON, Role Guard)"]
+    subgraph Server ["Backend API Server (Node.js / Express)"]
+        ExpressApp["Express App Container"]
+        Middleware["Middlewares (CORS, Express JSON, Role Guard)"]
         
         subgraph Endpoints ["APIs Endpoints"]
-            AuthAPI["🔑 Auth APIs (/api/auth)"]
-            ProductAPI["🍎 Product APIs (/api/products)"]
-            OrderAPI["📦 Order APIs (/api/orders)"]
-            AdminAPI["👤 Admin APIs (/api/admin)"]
+            AuthAPI["Auth APIs (/api/auth)"]
+            ProductAPI["Product APIs (/api/products)"]
+            OrderAPI["Order APIs (/api/orders)"]
+            AdminAPI["Admin APIs (/api/admin)"]
         end
         
         ExpressApp --> Middleware
         Middleware --> Endpoints
     end
 
-    subgraph DB ["💾 File System Database (JSON Files)"]
+    subgraph DB ["File System Database (JSON Files)"]
         UserDB[("users.json")]
         ProductDB[("products.json")]
         OrderDB[("orders.json")]
@@ -106,7 +108,6 @@ flowchart TD
    - ประมวลผลเก็บข้อมูลแบบน้ำหนักเบาผ่านดิสก์ลงในรูปแบบ **JSON Files** (`users.json`, `products.json`, `orders.json`)
    - หลังบ้านจะอ่านและอัปเดตไฟล์โดยตรงผ่าน Node.js File System (`fs` module) พร้อมระบบแคชข้อมูลบางส่วนในหน่วยความจำของเซิร์ฟเวอร์เพื่อความรวดเร็วและรองรับคำขอขนานได้อย่างมีประสิทธิภาพ
 
----
 
 ## 1. บทบาทและความสำคัญของแผนภาพต่อการพัฒนาระบบ
 ในการสร้างซอฟต์แวร์ การใช้แผนภาพต่างมุมมองช่วยให้ผู้พัฒนาระบบทำงานได้อย่างเป็นระบบและลดความผิดพลาด ดังนี้:
@@ -256,10 +257,10 @@ classDiagram
 ```mermaid
 sequenceDiagram
   autonumber
-  actor User as 👤 ผู้ใช้งาน
-  participant FE as 🖥️ หน้าบ้าน (Frontend / AuthContext)
-  participant BE as ⚙️ หลังบ้าน (Backend API)
-  participant DB as 💾 ฐานข้อมูล (users.json)
+  actor User as ผู้ใช้งาน
+  participant FE as หน้าบ้าน (Frontend / AuthContext)
+  participant BE as หลังบ้าน (Backend API)
+  participant DB as ฐานข้อมูล (users.json)
 
   Note over User, DB: 1. กระบวนการลงทะเบียน (Register)
   User->>FE: กรอกข้อมูลสมัครสมาชิก (Username, Password, Email, Name)
@@ -303,10 +304,10 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
   autonumber
-  actor Customer as 👤 ลูกค้า
-  participant FE as 🖥️ หน้าบ้าน (Frontend / CartContext)
-  participant BE as ⚙️ หลังบ้าน (Backend API)
-  participant DB as 💾 ฐานข้อมูล (JSON Files)
+  actor Customer as ลูกค้า
+  participant FE as หน้าบ้าน (Frontend / CartContext)
+  participant BE as หลังบ้าน (Backend API)
+  participant DB as ฐานข้อมูล (JSON Files)
 
   Note over Customer, DB: 1. ตรวจสอบสต็อกและสร้างคำสั่งซื้อ (Create Order)
   Customer->>FE: คลิก "ดำเนินการสั่งซื้อ" และยืนยันข้อมูลที่อยู่
@@ -349,10 +350,10 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
   autonumber
-  actor Customer as 👤 ลูกค้า
-  participant FE as 🖥️ หน้าบ้าน (Frontend / Orders Page)
-  participant BE as ⚙️ หลังบ้าน (Backend API)
-  participant DB as 💾 ฐานข้อมูล (JSON Files)
+  actor Customer as ลูกค้า
+  participant FE as หน้าบ้าน (Frontend / Orders Page)
+  participant BE as หลังบ้าน (Backend API)
+  participant DB as ฐานข้อมูล (JSON Files)
 
   Customer->>FE: คลิกปุ่ม "ยกเลิกคำสั่งซื้อ" (สำหรับสถานะ Pending หรือ Paid)
   FE->>BE: PUT /api/orders/:id/cancel (พร้อม Header x-user-id)
@@ -383,10 +384,10 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
   autonumber
-  actor Staff as 📦 พนักงาน / แอดมิน
-  participant FE as 🖥️ หน้าบ้าน (Admin Dashboard)
-  participant BE as ⚙️ หลังบ้าน (Backend API)
-  participant DB as 💾 ฐานข้อมูล (orders.json)
+  actor Staff as พนักงาน / แอดมิน
+  participant FE as หน้าบ้าน (Admin Dashboard)
+  participant BE as หลังบ้าน (Backend API)
+  participant DB as ฐานข้อมูล (orders.json)
 
   Note over Staff, DB: 1. การดึงรายการคำสั่งซื้อทั้งหมด (Fetch Orders)
   Staff->>FE: เปิดแท็บ "จัดการออเดอร์" (Order Management)
@@ -428,10 +429,10 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
   autonumber
-  actor Staff as 📦 พนักงาน / แอดมิน
-  participant FE as 🖥️ หน้าบ้าน (Inventory Control)
-  participant BE as ⚙️ หลังบ้าน (Backend API)
-  participant DB as 💾 ฐานข้อมูล (products.json)
+  actor Staff as พนักงาน / แอดมิน
+  participant FE as หน้าบ้าน (Inventory Control)
+  participant BE as หลังบ้าน (Backend API)
+  participant DB as ฐานข้อมูล (products.json)
 
   Note over Staff, DB: 1. การเพิ่มสินค้าใหม่ (Add Product)
   Staff->>FE: กรอกข้อมูลสินค้าและกดปุ่ม "เพิ่มสินค้า"
@@ -491,10 +492,10 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
   autonumber
-  actor Admin as 👤 ผู้ดูแลระบบ
-  participant FE as 🖥️ หน้าบ้าน (Performance QA Tool)
-  participant BE as ⚙️ หลังบ้าน (Backend API)
-  participant Cache as 🧠 หน่วยความจำหลังบ้าน (Node.js/OS I/O)
+  actor Admin as ผู้ดูแลระบบ
+  participant FE as หน้าบ้าน (Performance QA Tool)
+  participant BE as หลังบ้าน (Backend API)
+  participant Cache as หน่วยความจำหลังบ้าน (Node.js/OS I/O)
 
   Admin->>FE: เลือกเส้นทาง API (เช่น GET /api/products), ตั้งค่า Concurrency (5) และจำนวนครั้ง (50)
   Admin->>FE: คลิก "เริ่มต้นการทดสอบประสิทธิภาพ (Run Test)"
@@ -527,14 +528,14 @@ sequenceDiagram
 
 ```text
 +---------------------------------------------------------------------------------+
-|  VITA LIFE                                          [ร้านค้า]  [ตะกร้า (0)]  [👤 สมชาย] |
+|  VITA LIFE                                          [ร้านค้า]  [ตะกร้า (0)]  [สมชาย]    |
 +---------------------------------------------------------------------------------+
 |                                                                                 |
 |   ===================== VITALIFE WELLNESS =====================                 |
 |   ยกระดับสุขภาพและการดำเนินชีวิตของคุณด้วยผลิตภัณฑ์พรีเมียมคัดสรรพิเศษเพื่อความสุข     |
 |                                                                                 |
 +---------------------------------------------------------------------------------+
-|  [🔍 ค้นหาผลิตภัณฑ์สุขภาพ...]                                                      |
+|  [ค้นหาผลิตภัณฑ์สุขภาพ...]                                                          |
 |                                                                                 |
 |  ( ทั้งหมด )  ( อาหารเสริม )  ( อาหาร/เครื่องดื่ม )  ( อุปกรณ์ฟิตเนส )  ( ผลิตภัณฑ์ผิว )   |
 +---------------------------------------------------------------------------------+
@@ -544,7 +545,7 @@ sequenceDiagram
 |  |    [รูปเวย์โปรตีน]   |  |     [รูปผงมัทฉะ]    |  |    [รูปเสื่อโยคะ]    |         |
 |  |                    |  |                    |  |                    |         |
 |  | เวย์โปรตีนไอโซเลท...|  | ผงมัทฉะออร์แกนิก... |  | เสื่อโยคะยางพารา... |         |
-|  | ✓ มีสินค้าในสต็อก    |  | ✓ มีสินค้าในสต็อก    |  | ⚠️ เหลือเพียง 2 ชิ้น |         |
+|  | ✓ มีสินค้าในสต็อก    |  | ✓ มีสินค้าในสต็อก    |  | เหลือเพียง 2 ชิ้น   |         |
 |  | ราคา: 1,890 บาท    |  | ราคา: 690 บาท      |  | ราคา: 2,450 บาท    |         |
 |  |     [ใส่ตะกร้า]     |  |     [ใส่ตะกร้า]     |  |     [ใส่ตะกร้า]     |         |
 |  +--------------------+  +--------------------+  +--------------------+         |
